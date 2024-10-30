@@ -13,9 +13,13 @@ public class FoundationDatabase {
   // Bidit
   public boolean createUser(String username, String password) {
   }
+  
   //Richard
   public String viewUser(String username) {
     // use search method to make sure that user exists
+    if (search(username)) {
+      return username;
+    }
   }
   
   //Richard
@@ -27,11 +31,12 @@ public class FoundationDatabase {
     }
     return false;
   }
+  
   // Richard
   public boolean deleteUser(String username, String password) {
     // use search method to verify the user exists first
     if (search(username)) {
-      if(username.getPassword().equals(password)) {
+      if (username.getPassword().equals(password)) { // uses getPassword from user class
         users.remove(username);
       }
     }
