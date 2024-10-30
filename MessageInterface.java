@@ -1,3 +1,3 @@
-public class MessageInterface {
+public interface MessageInterface {
 
 }
