@@ -6,6 +6,8 @@ public interface UserInterface {
 
     void removeFriend(User user) throws UserException;
 
+    void createUser(String username, String password) throws UserException;
+
     String getUsername();
 
     String getUserPassword();
@@ -14,6 +16,6 @@ public interface UserInterface {
 
     String getUserBlocked();
 
-    boolean isValidUser();
+    boolean isValidUser(User username);
 
 }
