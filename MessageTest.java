@@ -63,7 +63,7 @@ public class MessageTest {
 
     @Test
     public void testMessageConstructorValidUser() throws Exception {
-        User validUser = new User("validUser", "password123");
+        User validUser = new User("validUser", "password123", true);
         Message message = new Message(validUser);
         Assert.assertEquals("Expected messager to be validUser", "validUser", message.getMessager().getUsername());
     }
@@ -78,8 +78,8 @@ public class MessageTest {
 
     @Test
     public void testMessageUserCreatesFile() throws Exception {
-        User sender = new User("senderUser", "password123");
-        User receiver = new User("receiverUser", "password456");
+        User sender = new User("senderUser", "password123", true);
+        User receiver = new User("receiverUser", "password456", true);
         Message message = new Message(sender);
 
         String testMessage = "Hello, this is a test message!";
@@ -91,42 +91,28 @@ public class MessageTest {
 
     @Test
     public void testMessageUserWritesContent() throws Exception {
-        ArrayList<User> users = new ArrayList<>();
-        FoundationDatabase database = new FoundationDatabase(users, userFileName);
-
-        database.createUser("senderUser", "password456");
-        database.createUser("receiverUser", "password789");
-
-        User sender = database.getUsers().get(0); // senderUser
-        User receiver = database.getUsers().get(1); // receiverUser
-
+        User sender = new User("senderUser2", "password123", true);
+        User receiver = new User("receiverUser2", "password456", true);
         Message message = new Message(sender);
-        String messageContent = "Hello, this is a test message!";
-        message.messageUser(receiver, messageContent);
 
-        String expectedFileName = "senderUserreceiverUsermessages";
-        File messageFile = new File(expectedFileName);
-        Assert.assertTrue("Message file should exist after sending a message", messageFile.exists());
+        String testMessage = "Hello, this is a test message!";
+        message.messageUser(receiver, testMessage);
 
-        StringBuilder actualMessageContent = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(messageFile))) {
+        StringBuilder fileContent = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(sender.getUsername() + receiver.getUsername() + "messages"))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                actualMessageContent.append(line).append("\n");
+                fileContent.append(line);
             }
-        } catch (IOException e) {
-            Assert.fail("An IOException occurred while reading the message file");
         }
-
-        Assert.assertEquals("The message content was not written correctly to the file",
-                messageContent + "\n", actualMessageContent.toString());
+        Assert.assertEquals("Expected file content to match the test message", testMessage, fileContent.toString());
     }
 
 
     @Test
     public void testGetMessagesWithExistingFile() throws Exception {
-        User sender = new User("senderUser", "password123");
-        User receiver = new User("receiverUser", "password456");
+        User sender = new User("senderUser3", "password123", true );
+        User receiver = new User("receiverUser3", "password456", true);
         Message message = new Message(sender);
 
         String testMessage = "Hello, test message for reading!";
@@ -138,8 +124,8 @@ public class MessageTest {
 
     @Test
     public void testGetMessagesWithNoFile() throws Exception {
-        User sender = new User("senderUser", "password123");
-        User receiver = new User("receiverUser", "password456");
+        User sender = new User("senderUser4", "password123", true);
+        User receiver = new User("receiverUser4", "password456", true);
         Message message = new Message(sender);
 
         String result = message.getMessages(receiver);
