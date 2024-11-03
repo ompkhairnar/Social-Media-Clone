@@ -74,4 +74,29 @@ public class FoundationDatabase {
     }
     return false;
   }
+
+  //Bidit
+  public boolean outputDatabase() {
+    try {
+      File f = new File(userFileName);
+      FileWriter fw = new FileWriter(f);
+      BufferedWriter bw = new BufferedWriter(fw);
+      for (User user : users) {
+        String uname = user.getUsername();
+        String pass = user.getUserPassword();
+        String friends = user.getUserFriends();
+        String blocked = user.getUserBlocked();
+        bw.write(uname + "," + pass + "," + friends + "," + blocked);
+      }
+      bw.close();
+    } catch (IOException e) {
+      return false;
+    }
+    return true;
+  }
+
+  //Bidit
+  public ArrayList<User> getUsers() {
+    return users;
+  }
 }
