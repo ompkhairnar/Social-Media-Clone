@@ -41,7 +41,7 @@ public class Message implements MessageInterface {
     }
 
     public String getMessages(User user) {
-        String messages = "";
+        StringBuilder messages = new StringBuilder();
         try {
             File file = new File(messager.getUsername() + user.getUsername() + "messages");
             if (!file.exists()) {
@@ -50,14 +50,14 @@ public class Message implements MessageInterface {
                 BufferedReader reader = new BufferedReader(new FileReader(file));
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    messages += line + "\n";
+                    messages.append(line).append("\n");
                 }
-                return messages;
+                return messages.toString();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return messages;
+        return messages.toString();
     }
 
 }
