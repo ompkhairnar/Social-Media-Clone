@@ -49,7 +49,7 @@ public class UserTest {
     }
 
     @Test(expected = UserException.class)
-    public void testAddUser_AlreadyBlocked() throws Exception {
+    public void testAddUser_AlreadyBlocked() throws UserException {
         User user = new User("sawyer", "password");
         User blockedUser = new User("testBlocked1", "pass", true);
 
@@ -63,5 +63,63 @@ public class UserTest {
 
         user.blockUser(newBlockedUser);
         assertTrue(user.getUserBlocked().contains("sawyerBlocked"));
+    }
+
+    @Test
+    public void testRemoveFriend_SuccessfulRemoval() throws Exception {
+        User user = new User("sawyer", "password");
+        User friend = new User("sawyerRemove", "pass", true);
+
+        user.addUser(friend);
+        user.removeFriend(friend);
+        assertFalse(user.getUserFriends().contains("sawyerRemove"));
+    }
+
+    @Test(expected = UserException.class)
+    public void testRemoveFriend_NotAFriend() throws Exception {
+        User user = new User("sawyer", "password");
+        User nonFriend = new User("random", "pass");
+
+        user.removeFriend(nonFriend); // This should throw an exception
+    }
+
+    @Test
+    public void testIsUserNameTaken_ExistingUser() throws Exception {
+        User user = new User("sawyer", "password");
+        assertTrue(user.isUserNameTaken("sawyer"));
+    }
+
+    @Test
+    public void testIsUserNameTaken_NonexistentUser() throws Exception {
+        User user = new User("sawyer", "password");
+        assertFalse(user.isUserNameTaken("newName"));
+    }
+
+    @Test
+    public void testIsValidUser_ValidUser() throws Exception {
+        User user = new User("sawyer", "password");
+        assertTrue(user.isValidUser(user));
+    }
+
+    @Test(expected = UserException.class)
+    public void testIsValidUser_InvalidUser() throws Exception {
+        User invalidUser = new User("invalidUser", "pass");
+        assertFalse(invalidUser.isValidUser(invalidUser));
+    }
+
+    @Test
+    public void testUpdateCSV_FileUpdatesCorrectly() throws Exception {
+        User user = new User("sawyer", "password");
+        User update = new User("sawyerUpdate", "pass", true);
+
+        user.addUser(update);
+        assertTrue(user.getUserFriends().contains("sawyerUpdate"));
+
+    }
+
+    @Test(expected = UserException.class)
+    public void testUpdateCSV_UserNotFound() throws Exception {
+        User user = new User("nonexistent", "password");
+        user.updateCSV(); // This should throw an exception since the user does not exist
     }
 }

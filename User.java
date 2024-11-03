@@ -95,7 +95,8 @@ public class User implements UserInterface {
             throw new UserException("Username is not available");
         }
 
-        try (PrintWriter pw = new PrintWriter(new FileWriter(userStorage))) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(userStorage, true))) {
+            // pw.println(username + "," + password + ",,");
             pw.println(username + "," + password + "," + friendList + "," + blockedList);
         } catch (IOException e) {
             throw new UserException("Unable to create account");
@@ -127,16 +128,15 @@ public class User implements UserInterface {
             throw new UserException("User is already blocked");
         }
         blockedList.add(user.getUsername());
-        updateCSV();
 
         if (friendList.contains(user.getUsername())) {
             friendList.remove(user.getUsername());
-            updateCSV();
         }
         if (user.friendList.contains(this.username)) {
             user.friendList.remove(this.username);
             user.updateCSV();
         }
+        updateCSV();
     }
 
     // makes sure user is a friend then removes them
@@ -145,17 +145,17 @@ public class User implements UserInterface {
             throw new UserException("User is not your friend");
         }
         friendList.remove(user.getUsername());
-        updateCSV();
 
         if (user.friendList.contains(this.username)) {
             user.friendList.remove(this.username);
             user.updateCSV();
         }
+        updateCSV();
     }
 
     // updates our csv file by passing in any new information
     // if program doesnt find the user and their info exception is thrown
-    private void updateCSV() throws UserException {
+    void updateCSV() throws UserException {
         List<String> fileStorage = new ArrayList<>();
         boolean userFound = false;
 
