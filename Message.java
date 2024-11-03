@@ -5,15 +5,19 @@ public class Message implements MessageInterface {
     private File messages;
 
     public Message(User messager) throws UserException {
-        if (!isValidUser(messager)) {
+        if (!messager.isValidUser(messager)) {
             throw new UserException("Invalid user");
         }
         this.messager = messager;
     }
 
+    public Message(UserException e) {
+        messager = new User(e);
+    }
+
     public void messageUser(User user, String message) {
         try {
-            if (isValidUser(user)) {
+            if (messager.isValidUser(user)) {
                 String fileName = messager.getUsername() + user.getUsername() + "messages";
                 File file = new File(fileName);
                 if (file.exists()) {
