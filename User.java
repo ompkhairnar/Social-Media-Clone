@@ -9,9 +9,16 @@ public class User implements UserInterface {
     private static final String userStorage = "userStorage.csv";
 
     public User(String username, String password) throws UserException {
+        if (username.contains(" ") || password.contains(" "))
+            throw new UserException("Bad User Data");
         this.username = username;
         this.password = password;
         loginUser();
+    }
+
+    public User(UserException e) {
+        username = e.getMessage();
+        password = e.getMessage();
     }
 
     private void loginUser() throws UserException {
