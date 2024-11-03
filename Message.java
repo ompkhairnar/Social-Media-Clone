@@ -1,22 +1,29 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-
+/*
+@author Om Khairnar
+@Version 11/03/2024
+Om Wrote all code for these the message class.
+ */
 public class Message implements MessageInterface {
     private User messager;
     private File messages;
 
+    //Constructor taking in the messager user
     public Message(User messager) throws UserException {
         if (!messager.isValidUser(messager)) {
             throw new UserException("Invalid user");
         }
         this.messager = messager;
     }
-
+    //error constructor
     public Message(UserException e) {
         messager = new User(e);
     }
 
+    //Actual method where the messager messages a user, it creates a new file
+    //if the file does not already exist, but if it does it appends the file
     public void messageUser(User user, String message) {
         try {
             if (messager.isValidUser(user)) {
@@ -36,6 +43,7 @@ public class Message implements MessageInterface {
         return messager;
     }
 
+    //returns the file of messages
     public String getMessages(User user) {
         StringBuilder messages = new StringBuilder();
         try {
@@ -57,6 +65,7 @@ public class Message implements MessageInterface {
         return messages.toString();
     }
 
+    //method to update the file real time
     public void updateFile(User user, String newMessage) throws UserException {
         List<String> fileStorage = new ArrayList<>();
 
