@@ -1,3 +1,5 @@
+import java.util.List;
+
 public interface UserInterface {
 
     void addUser(User user) throws UserException;
@@ -6,7 +8,8 @@ public interface UserInterface {
 
     void removeFriend(User user) throws UserException;
 
-    void createUser(String username, String password) throws UserException;
+    void createUser(String username, String password, List<String> friendList, List<String> blockedList)
+            throws UserException;
 
     String getUsername();
 

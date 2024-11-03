@@ -8,6 +8,18 @@ public class User implements UserInterface {
     private List<String> blockedList;
     private static final String userStorage = "userStorage.csv";
 
+    public User(String username, String password, boolean isNewUser) throws UserException {
+        if (username.contains(" ") || password.contains(" ")) {
+            throw new UserException("Bad User Data");
+        }
+
+        this.username = username;
+        this.password = password;
+        this.friendList = new ArrayList<>();
+        this.blockedList = new ArrayList<>();
+        createUser(username, password, friendList, blockedList);
+    }
+
     public User(String username, String password) throws UserException {
         if (username.contains(" ") || password.contains(" "))
             throw new UserException("Bad User Data");
@@ -77,13 +89,14 @@ public class User implements UserInterface {
     }
 
     // creates a new user and writes it to csv file, error if username is taken
-    public void createUser(String username, String password) throws UserException {
+    public void createUser(String username, String password, List<String> friendList, List<String> blockedList)
+            throws UserException {
         if (isUserNameTaken(username)) {
             throw new UserException("Username is not available");
         }
 
         try (PrintWriter pw = new PrintWriter(new FileWriter(userStorage))) {
-            pw.println(username + "," + password + ",,");
+            pw.println(username + "," + password + "," + friendList + "," + blockedList);
         } catch (IOException e) {
             throw new UserException("Unable to create account");
         }
@@ -101,6 +114,11 @@ public class User implements UserInterface {
         }
         friendList.add(user.getUsername());
         updateCSV();
+
+        if (!user.friendList.contains(this.username)) {
+            user.friendList.add(this.username);
+            user.updateCSV();
+        }
     }
 
     // makes sure user is not blocked then adds them to blocked list
@@ -110,6 +128,15 @@ public class User implements UserInterface {
         }
         blockedList.add(user.getUsername());
         updateCSV();
+
+        if (friendList.contains(user.getUsername())) {
+            friendList.remove(user.getUsername());
+            updateCSV();
+        }
+        if (user.friendList.contains(this.username)) {
+            user.friendList.remove(this.username);
+            user.updateCSV();
+        }
     }
 
     // makes sure user is a friend then removes them
@@ -119,6 +146,11 @@ public class User implements UserInterface {
         }
         friendList.remove(user.getUsername());
         updateCSV();
+
+        if (user.friendList.contains(this.username)) {
+            user.friendList.remove(this.username);
+            user.updateCSV();
+        }
     }
 
     // updates our csv file by passing in any new information
