@@ -1,64 +1,67 @@
-import org.junit.Assert;
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
-
+import static org.junit.Assert.*;
 import java.io.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
+import java.util.*;
 
 public class UserTest {
-    @Test(timeout = 1000)
-        public void ensureUserThrowsUserException() {
-            try {
-                new User("Bad Username", "Bad Password");
-            } catch (Exception e) {
-                Assert.assertEquals("Ensure that `User` has a constructor that throws UserException!",UserException.class, e.getClass());
-            }
-            /*
-            // Set the input        
-            // Separate each input with a newline (\n). 
-            String input = "Line One\nLine Two\n"; 
 
-            // Pair the input with the expected result
-            String expected = "Insert the expected output here" 
+    private final String file = "userStorage.csv";
 
-            // Runs the program with the input values
-            // Replace TestProgram with the name of the class with the main method
-            receiveInput(input);
-            TestProgram.main(new String[0]);
-
-            // Retrieves the output from the program
-            String stuOut = getOutput();
-
-            // Trims the output and verifies it is correct. 
-            stuOut = stuOut.replace("\r\n", "\n");
-            assertEquals("Error message if output is incorrect, customize as needed",
-            expected.trim(), stuOut.trim());
-            */
+    @Before
+    public void setUp() throws Exception {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
+            pw.println("sawyer,password,testFriend1;testFriend2,testBlocked1");
+            pw.println("notSawyer,12345,,testBlocked1:testBlocked2");
         }
+    }
 
-        @Test
-        public void testBadUserConstructorExists() {
-            try {
-                Class<?> c = User.class;
-                Constructor<?> constructor = c.getConstructor(UserException.class);
-            } catch (NoSuchMethodException e) {
-                Assert.fail("User constructor with UserException argument does not exist or is not public!");
-            }
-        }
+    @Test
+    public void testUserConstructor_validLogin() throws Exception {
+        User user = new User("sawyer", "password");
+        assertEquals("sawyer", user.getUsername());
+        assertEquals("password", user.getUserPassword());
+        assertEquals("testFriend1;testFriend2", user.getUserFriends());
+        assertEquals("testBlocked1", user.getUserBlocked());
+    }
 
-        @Test
-        public void testGoodUserConstructorExists() {
-            try {
-                Class<?> c = User.class;
-                Constructor<?> constructor = c.getConstructor(String.class, String.class);
-            } catch (NoSuchMethodException e) {
-                Assert.fail("User constructor with String username and password argument does not exist or is not public!");
-            }
-        }
+    @Test(expected = UserException.class)
+    public void testUserConstructor_invalidLogin() throws Exception {
+        new User("test123", "pass123");
+    }
+
+    @Test
+    public void testAddUser_success() throws Exception {
+        User user = new User("sawyer", "password");
+        User friend = new User("notSawyer", "12345");
+
+        user.addUser(friend);
+        assertTrue(user.getUserFriends().contains("notSawyer"));
+    }
+
+    @Test(expected = UserException.class)
+    public void testAddUser_AlreadyFriend() throws UserException {
+        User user = new User("sawyer", "password");
+        User friend = new User("notSawyer", "12345");
+
+        user.addUser(friend); // This should throw an exception
+        user.addUser(friend);
+    }
+
+    @Test(expected = UserException.class)
+    public void testAddUser_AlreadyBlocked() throws Exception {
+        User user = new User("sawyer", "password");
+        User blockedUser = new User("testBlocked1", "pass", true);
+
+        user.addUser(blockedUser); // This should throw an exception
+    }
+
+    @Test
+    public void testBlockUser_SuccessfulBlock() throws Exception {
+        User user = new User("sawyer", "password");
+        User newBlockedUser = new User("sawyerBlocked", "pass", true);
+
+        user.blockUser(newBlockedUser);
+        assertTrue(user.getUserBlocked().contains("sawyerBlocked"));
+    }
 }
