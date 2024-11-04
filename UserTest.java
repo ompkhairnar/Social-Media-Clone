@@ -4,6 +4,15 @@ import static org.junit.Assert.*;
 import java.io.*;
 import java.util.*;
 
+/**
+* User Test Class.
+*
+* <p>Purdue University -- CS18000 -- Fall 2024</p>
+*
+* @author Purdue CS
+* @version Nov 3, 2024
+*/
+
 public class UserTest {
 
     private final String file = "userStorage.csv";
