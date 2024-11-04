@@ -1,5 +1,14 @@
 import java.util.List;
 
+/**
+* User Interface Class.
+*
+* <p>Purdue University -- CS18000 -- Fall 2024</p>
+*
+* @author Purdue CS
+* @version Nov 3, 2024
+*/
+
 public interface UserInterface {
 
     void addUser(User user) throws UserException;
