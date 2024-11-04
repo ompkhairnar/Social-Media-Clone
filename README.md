@@ -18,12 +18,12 @@
 
 ## Submission Summary
 
-| Student | Part Submitted | 
-| ------- | -------------- |
-| Richard Yom | Second half of database file, README file |
-| Om Khairnar | First half of database file, test cases | 
-| Sawyer Boursheski | User-related files, test cases |
-| Bidit Acharyya | Messager-related files, test cases | 
+| Student | Part Submitted | Date Submitted | 
+| ------- | -------------- | -------------- |
+| Richard Yom | Second half of database file, README file | 11/3 |
+| Om Khairnar | First half of database file, test cases | 11/3 |
+| Sawyer Boursheski | User-related files, test cases | 11/3 |
+| Bidit Acharyya | Messager-related files, test cases | 11/3 |
 
 ## Class Descriptions
 
