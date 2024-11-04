@@ -1,6 +1,15 @@
 import java.io.*;
 import java.util.*;
 
+/**
+* User Class.
+*
+* <p>Purdue University -- CS18000 -- Fall 2024</p>
+*
+* @author Purdue CS
+* @version Nov 3rd, 2024
+*/
+
 public class User implements UserInterface {
     private String username;
     private String password;
