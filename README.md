@@ -1,4 +1,4 @@
-# Project README
+# Project Details
 
 ## Compilation and Execution Instructions
 
@@ -12,18 +12,19 @@
 2. **Execution**:
    - Run the main program using the following command:
      ```bash
-     java MainClassName
+     java FoundationDataBase
      ```
-   - Replace `MainClassName` with the appropriate class that contains the `main` method to execute the program. 
-
+     
 ## Submission Summary
 
-| Student | Part Submitted | Date Submitted | 
-| ------- | -------------- | -------------- |
-| Richard Yom | Second half of database file, README file | 11/3 |
-| Om Khairnar | First half of database file, test cases | 11/3 |
-| Sawyer Boursheski | User-related files, test cases | 11/3 |
-| Bidit Acharyya | Messager-related files, test cases | 11/3 |
+| Student | Parts Done | Parts Submitted | Date Submitted | 
+| ------- | ---------- | --------------- | -------------- |
+| Richard Yom | Second half of database file, README file | Database | 11/3 |
+| Om Khairnar | Messager-related files, test cases | Messenger | 11/3 |
+| Sawyer Boursheski | User-related files, test cases | User | 11/3 |
+| Bidit Acharyya | First half of database file, test cases | N/A | 11/3 | 
+
+
 
 ## Class Descriptions
 
