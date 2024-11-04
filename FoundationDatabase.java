@@ -11,22 +11,22 @@ public class FoundationDatabase {
   }
 
   // Bidit
-  public synchronized boolean readUsers(String file) {
+  public boolean readUsers(String file) {
     try {
       File f = new File(userFileName);
       FileReader fr = new FileReader(f);
       BufferedReader br = new BufferedReader(fr);
       String line = br.readLine();
-      synchronized (users) {  // synchronize access to the users list
-        while (line != null) {
-          String[] arr = line.split(",");
+      while (line != null) {
+        String[] arr = line.split(",");
+        synchronized (users) {  // Only lock access to users during modification
           try {
             users.add(new User(arr[0], arr[1]));
           } catch (UserException ue) {
             users.add(new User(ue));
           }
-          line = br.readLine();
         }
+        line = br.readLine();
       }
       br.close();
     } catch (IOException e) {
@@ -36,8 +36,8 @@ public class FoundationDatabase {
   }
 
   // Bidit
-  public synchronized boolean createUser(String username, String password) {
-    synchronized (users) {
+  public boolean createUser(String username, String password) {
+    synchronized (users) {  // Only lock access to users during modification
       try {
         users.add(new User(username, password));
       } catch (UserException ue) {
@@ -48,7 +48,7 @@ public class FoundationDatabase {
   }
 
   // Richard
-  public synchronized String viewUser(String username) {
+  public String viewUser(String username) {
     if (search(username)) {
       return username;
     }
@@ -56,8 +56,8 @@ public class FoundationDatabase {
   }
 
   // Richard
-  public synchronized boolean search(String username) {
-    synchronized (users) {
+  public boolean search(String username) {
+    synchronized (users) {  // Lock access to users only during iteration
       for (User user : users) {
         if (user.getUsername().equalsIgnoreCase(username)) {
           return true;
@@ -68,13 +68,15 @@ public class FoundationDatabase {
   }
 
   // Richard
-  public synchronized boolean deleteUser(String username, String password) {
+  public boolean deleteUser(String username, String password) {
     if (search(username)) {
       User user = null;
-      synchronized (users) {
+      synchronized (users) {  // Lock access to users only during modification
         for (User u : users) {
-          if (u.getUsername().equals(username))
+          if (u.getUsername().equals(username)) {
             user = u;
+            break;
+          }
         }
         if (user != null) {
           users.remove(user);
@@ -86,12 +88,12 @@ public class FoundationDatabase {
   }
 
   // Bidit
-  public synchronized boolean outputDatabase() {
+  public boolean outputDatabase() {
     try {
       File f = new File(userFileName);
       FileWriter fw = new FileWriter(f);
       BufferedWriter bw = new BufferedWriter(fw);
-      synchronized (users) {
+      synchronized (users) {  // Lock access to users only during file writing
         for (User user : users) {
           String uname = user.getUsername();
           String pass = user.getUserPassword();
@@ -108,9 +110,9 @@ public class FoundationDatabase {
   }
 
   // Bidit
-  public synchronized ArrayList<User> getUsers() {
-    synchronized (users) {
-      return new ArrayList<>(users);  // return a copy to avoid exposing internal state
+  public ArrayList<User> getUsers() {
+    synchronized (users) {  // Lock access to users only during copy creation
+      return new ArrayList<>(users);  // Return a copy to avoid exposing internal state
     }
   }
 }
