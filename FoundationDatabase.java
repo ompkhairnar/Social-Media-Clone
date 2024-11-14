@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 import java.io.*;
 
-public class FoundationDatabase {
-  private final ArrayList<User> users;  // Use 'final' for immutability of the reference
-  private final String userFileName;
+public class FoundationDatabase implements FoundationDatabaseInterface {
+  private ArrayList<User> users;
+  private String userFileName;
 
   public FoundationDatabase(ArrayList<User> users, String filename) {
     this.users = users;
