@@ -10,7 +10,7 @@ public class FoundationDatabase implements FoundationDatabaseInterface {
     userFileName = filename;
   }
 
-  //Bidit
+  // Bidit
   public boolean readUsers(String file) {
     try {
       File f = new File(userFileName);
@@ -19,10 +19,12 @@ public class FoundationDatabase implements FoundationDatabaseInterface {
       String line = br.readLine();
       while (line != null) {
         String[] arr = line.split(",");
-        try {
-          users.add(new User(arr[0], arr[1]));
-        } catch (UserException ue) {
-          users.add(new User(ue));
+        synchronized (users) {  // Only lock access to users during modification
+          try {
+            users.add(new User(arr[0], arr[1]));
+          } catch (UserException ue) {
+            users.add(new User(ue));
+          }
         }
         line = br.readLine();
       }
@@ -32,61 +34,73 @@ public class FoundationDatabase implements FoundationDatabaseInterface {
     }
     return true;
   }
+
   // Bidit
   public boolean createUser(String username, String password) {
-    try {
-      users.add(new User(username, password));
-    } catch (UserException ue) {
-      return false;
+    synchronized (users) {  // Only lock access to users during modification
+      try {
+        users.add(new User(username, password));
+      } catch (UserException ue) {
+        return false;
+      }
     }
     return true;
   }
-  //Richard
+
+  // Richard
   public String viewUser(String username) {
-    // use search method to make sure that user exists
-  	if (search(username)) {
-  		return username;
+    if (search(username)) {
+      return username;
     }
     return "";
   }
-  //Richard
-  public boolean search(String username) {	
-	for (User user : users) {
-        	if (user.getUsername().equalsIgnoreCase(username)) {  // case-insensitive + using user method
-            		return true;
-        	}
-    	}
-  	return false;
-  }
+
   // Richard
-  public boolean deleteUser(String username, String password) {
-    // use search method to verify the user exists first
-  	if (search(username)) {
-      User user = null;
-      for (User u : users) {
-        if (u.getUsername().equals(username))
-          user = u;
-      }
-  		if (user != null) { // uses getPassword from user class
-        users.remove(user);
-        return true;
+  public boolean search(String username) {
+    synchronized (users) {  // Lock access to users only during iteration
+      for (User user : users) {
+        if (user.getUsername().equalsIgnoreCase(username)) {
+          return true;
+        }
       }
     }
     return false;
   }
 
-  //Bidit
+  // Richard
+  public boolean deleteUser(String username, String password) {
+    if (search(username)) {
+      User user = null;
+      synchronized (users) {  // Lock access to users only during modification
+        for (User u : users) {
+          if (u.getUsername().equals(username)) {
+            user = u;
+            break;
+          }
+        }
+        if (user != null) {
+          users.remove(user);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  // Bidit
   public boolean outputDatabase() {
     try {
       File f = new File(userFileName);
       FileWriter fw = new FileWriter(f);
       BufferedWriter bw = new BufferedWriter(fw);
-      for (User user : users) {
-        String uname = user.getUsername();
-        String pass = user.getUserPassword();
-        String friends = user.getUserFriends();
-        String blocked = user.getUserBlocked();
-        bw.write(uname + "," + pass + "," + friends + "," + blocked);
+      synchronized (users) {  // Lock access to users only during file writing
+        for (User user : users) {
+          String uname = user.getUsername();
+          String pass = user.getUserPassword();
+          String friends = user.getUserFriends();
+          String blocked = user.getUserBlocked();
+          bw.write(uname + "," + pass + "," + friends + "," + blocked);
+        }
       }
       bw.close();
     } catch (IOException e) {
@@ -95,8 +109,10 @@ public class FoundationDatabase implements FoundationDatabaseInterface {
     return true;
   }
 
-  //Bidit
+  // Bidit
   public ArrayList<User> getUsers() {
-    return users;
+    synchronized (users) {  // Lock access to users only during copy creation
+      return new ArrayList<>(users);  // Return a copy to avoid exposing internal state
+    }
   }
 }

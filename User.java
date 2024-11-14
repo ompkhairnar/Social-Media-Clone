@@ -1,6 +1,15 @@
 import java.io.*;
 import java.util.*;
 
+/**
+* User Class.
+*
+* <p>Purdue University -- CS18000 -- Fall 2024</p>
+*
+* @author Purdue CS
+* @version Nov 3rd, 2024
+*/
+
 public class User implements UserInterface {
     private String username;
     private String password;
@@ -8,9 +17,21 @@ public class User implements UserInterface {
     private List<String> blockedList;
     private static final String userStorage = "userStorage.csv";
 
-    public User(String username, String password) throws UserException {
-        if (username.contains(" ") || password.contains(" "))
+    public User(String username, String password, boolean isNewUser) throws UserException {
+        if (username.contains(" ") || password.contains(" ")) {
             throw new UserException("Bad User Data");
+        }
+        this.username = username;
+        this.password = password;
+        this.friendList = new ArrayList<>();
+        this.blockedList = new ArrayList<>();
+        createUser(username, password, friendList, blockedList);
+    }
+
+    public User(String username, String password) throws UserException {
+        if (username.contains(" ") || password.contains(" ")) {
+            throw new UserException("Bad User Data");
+        }
         this.username = username;
         this.password = password;
         loginUser();
@@ -27,8 +48,12 @@ public class User implements UserInterface {
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",");
                 if (data[0].equals(username) && data[1].equals(password)) {
-                    this.friendList = new ArrayList<>(Arrays.asList(data[2].split(";")));
-                    this.blockedList = new ArrayList<>(Arrays.asList(data[3].split(";")));
+                    synchronized (friendList) {
+                        this.friendList = new ArrayList<>(Arrays.asList(data[2].split(";")));
+                    }
+                    synchronized (blockedList) {
+                        this.blockedList = new ArrayList<>(Arrays.asList(data[3].split(";")));
+                    }
                     return;
                 }
             }
@@ -47,11 +72,15 @@ public class User implements UserInterface {
     }
 
     public String getUserFriends() {
-        return String.join(";", friendList);
+        synchronized (friendList) {
+            return String.join(";", friendList);
+        }
     }
 
     public String getUserBlocked() {
-        return String.join(";", blockedList);
+        synchronized (blockedList) {
+            return String.join(";", blockedList);
+        }
     }
 
     // checks if the username is taken or not
@@ -77,81 +106,107 @@ public class User implements UserInterface {
     }
 
     // creates a new user and writes it to csv file, error if username is taken
-    public void createUser(String username, String password) throws UserException {
+    public void createUser(String username, String password, List<String> friendList, List<String> blockedList)
+            throws UserException {
         if (isUserNameTaken(username)) {
             throw new UserException("Username is not available");
         }
-
-        try (PrintWriter pw = new PrintWriter(new FileWriter(userStorage))) {
-            pw.println(username + "," + password + ",,");
-        } catch (IOException e) {
-            throw new UserException("Unable to create account");
+        synchronized (User.class) {
+            try (PrintWriter pw = new PrintWriter(new FileWriter(userStorage, true))) {
+                pw.println(username + "," + password + "," + String.join(";", friendList) + "," + String.join(";", blockedList));
+            } catch (IOException e) {
+                throw new UserException("Unable to create account");
+            }
         }
-
     }
 
-    // makes sure user is not already or friend or blocked then adds user to friend
-    // list
+    // makes sure user is not already a friend or blocked then adds user to friend list
     public void addUser(User user) throws UserException {
-        if (friendList.contains(user.getUsername())) {
-            throw new UserException("User is already your friend");
+        synchronized (friendList) {
+            if (friendList.contains(user.getUsername())) {
+                throw new UserException("User is already your friend");
+            }
         }
-        if (blockedList.contains(user.getUsername())) {
-            throw new UserException("You have this user blocked");
+        synchronized (blockedList) {
+            if (blockedList.contains(user.getUsername())) {
+                throw new UserException("You have this user blocked");
+            }
         }
-        friendList.add(user.getUsername());
+        synchronized (friendList) {
+            friendList.add(user.getUsername());
+        }
         updateCSV();
+        synchronized (user.friendList) {
+            if (!user.friendList.contains(this.username)) {
+                user.friendList.add(this.username);
+                user.updateCSV();
+            }
+        }
     }
 
     // makes sure user is not blocked then adds them to blocked list
     public void blockUser(User user) throws UserException {
-        if (blockedList.contains(user.getUsername())) {
-            throw new UserException("User is already blocked");
+        synchronized (blockedList) {
+            if (blockedList.contains(user.getUsername())) {
+                throw new UserException("User is already blocked");
+            }
+            blockedList.add(user.getUsername());
         }
-        blockedList.add(user.getUsername());
+        synchronized (friendList) {
+            friendList.remove(user.getUsername());
+        }
+        synchronized (user.friendList) {
+            user.friendList.remove(this.username);
+            user.updateCSV();
+        }
         updateCSV();
     }
 
     // makes sure user is a friend then removes them
     public void removeFriend(User user) throws UserException {
-        if (!friendList.contains(user.getUsername())) {
-            throw new UserException("User is not your friend");
+        synchronized (friendList) {
+            if (!friendList.contains(user.getUsername())) {
+                throw new UserException("User is not your friend");
+            }
+            friendList.remove(user.getUsername());
         }
-        friendList.remove(user.getUsername());
+        synchronized (user.friendList) {
+            user.friendList.remove(this.username);
+            user.updateCSV();
+        }
         updateCSV();
     }
 
     // updates our csv file by passing in any new information
     // if program doesnt find the user and their info exception is thrown
-    private void updateCSV() throws UserException {
+    void updateCSV() throws UserException {
         List<String> fileStorage = new ArrayList<>();
         boolean userFound = false;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(userStorage))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] data = line.split(",");
-                if (data[0].equals(username)) {
-                    fileStorage.add(username + "," + password + "," + getUserFriends() + getUserBlocked());
-                    userFound = true;
-                } else {
-                    fileStorage.add(line);
+        synchronized (User.class) {
+            try (BufferedReader br = new BufferedReader(new FileReader(userStorage))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] data = line.split(",");
+                    if (data[0].equals(username)) {
+                        fileStorage.add(username + "," + password + "," + getUserFriends() + "," + getUserBlocked());
+                        userFound = true;
+                    } else {
+                        fileStorage.add(line);
+                    }
                 }
+            } catch (IOException e) {
+                throw new UserException("Error reading file");
             }
-        } catch (IOException e) {
-            throw new UserException("Error reading file");
-        }
-
-        if (!userFound) {
-            throw new UserException("User not found");
-        }
-
-        try (PrintWriter pw = new PrintWriter(new FileWriter(userStorage))) {
-            for (String line : fileStorage) {
-                pw.println(line);
+            if (!userFound) {
+                throw new UserException("User not found");
             }
-        } catch (IOException e) {
-            throw new UserException("Could not update user data");
+            try (PrintWriter pw = new PrintWriter(new FileWriter(userStorage))) {
+                for (String line : fileStorage) {
+                    pw.println(line);
+                }
+            } catch (IOException e) {
+                throw new UserException("Could not update user data");
+            }
         }
     }
 }
