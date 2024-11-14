@@ -5,5 +5,6 @@ public interface MessageInterface {
 
     public String getMessages(User user);
 
+    public void updateFile(User user, String newMessage) throws UserException;
 
 }
