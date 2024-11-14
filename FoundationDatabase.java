@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.io.*;
 
-public class FoundationDatabase {
+public class FoundationDatabase implements FoundationDatabaseInterface {
   private ArrayList<User> users;
   private String userFileName;
 
