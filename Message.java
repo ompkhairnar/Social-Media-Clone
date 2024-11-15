@@ -1,94 +1,106 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+
 /*
 @author Om Khairnar
 @Version 11/03/2024
-Om Wrote all code for these the message class.
- */
-public class Message implements MessageInterface {
-    private User messager;
-    private File messages;
+Om Wrote all code for the Message class.
+*/
 
-    //Constructor taking in the messager user
+public class Message implements MessageInterface {
+    private final User messager; // The user sending the messages
+    private final Object fileLock = new Object(); // Lock object for thread safety
+
+    // Constructor taking in the messager user
     public Message(User messager) throws UserException {
         if (!messager.isValidUser(messager)) {
             throw new UserException("Invalid user");
         }
         this.messager = messager;
     }
-    //error constructor
+
+    // Error constructor
     public Message(UserException e) {
-        messager = new User(e);
+        this.messager = new User(e);
     }
 
-    //Actual method where the messager messages a user, it creates a new file
-    //if the file does not already exist, but if it does it appends the file
+    // Actual method where the messager messages a user. It creates a new file
+    // if the file does not already exist, but if it does, it appends the file.
     public void messageUser(User user, String message) {
-        try {
-            if (messager.isValidUser(user)) {
-                String fileName = messager.getUsername() + user.getUsername() + "messages";
-                File file = new File(fileName);
-                BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
-                writer.write(message);
-                writer.newLine();
-                writer.close();
+        synchronized (fileLock) { // Synchronize critical section to ensure thread safety
+            try {
+                if (messager.isValidUser(user)) {
+                    String fileName = messager.getUsername() + user.getUsername() + "messages";
+                    File file = new File(fileName);
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+                        writer.write(message);
+                        writer.newLine();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
+    // Getter method for the messager user
     public User getMessager() {
         return messager;
     }
 
-    //returns the file of messages
+    // Returns the file of messages between users
     public String getMessages(User user) {
-        StringBuilder messages = new StringBuilder();
-        try {
-            File file = new File(messager.getUsername() + user.getUsername() + "messages");
-            if (!file.exists()) {
-                return "No messages currently exist between users";
-            } else {
-                BufferedReader reader = new BufferedReader(new FileReader(file));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    messages.append(line).append("\n");
+        synchronized (fileLock) { // Synchronize critical section to ensure thread safety
+            StringBuilder messages = new StringBuilder();
+            try {
+                File file = new File(messager.getUsername() + user.getUsername() + "messages");
+                if (!file.exists()) {
+                    return "No messages currently exist between users";
+                } else {
+                    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            messages.append(line).append("\n");
+                        }
+                    }
                 }
-                reader.close();
-                return messages.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            return messages.toString();
         }
-        return messages.toString();
     }
 
-    //method to update the file real time
+    // Method to update the file in real-time
     public void updateFile(User user, String newMessage) throws UserException {
-        List<String> fileStorage = new ArrayList<>();
+        synchronized (fileLock) { // Synchronize critical section to ensure thread safety
+            List<String> fileStorage = new ArrayList<>();
 
-        String fileName = messager.getUsername() + user.getUsername() + "messages";
-        File file = new File(fileName);
+            String fileName = messager.getUsername() + user.getUsername() + "messages";
+            File file = new File(fileName);
 
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                fileStorage.add(line);
+            // Read existing messages into a list
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    fileStorage.add(line);
+                }
+            } catch (IOException e) {
+                throw new UserException("Error reading message file");
             }
-        } catch (IOException e) {
-            throw new UserException("Error reading message file");
-        }
 
-        fileStorage.add(newMessage);
+            // Add the new message to the list
+            fileStorage.add(newMessage);
 
-        try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
-            for (String line : fileStorage) {
-                pw.println(line);
+            // Write the updated list back to the file
+            try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
+                for (String line : fileStorage) {
+                    pw.println(line);
+                }
+            } catch (IOException e) {
+                throw new UserException("Could not update message file");
             }
-        } catch (IOException e) {
-            throw new UserException("Could not update message file");
         }
     }
 }

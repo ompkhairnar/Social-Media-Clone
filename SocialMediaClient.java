@@ -25,20 +25,21 @@ public class SocialMediaClient {
             System.out.println("Successfully Logged In!");
             boolean done = false;
             while (!done) {
-                System.out.println("Enter Choice:\n1. Block User\n2. Add User\n3. Exit");
+                System.out.println("Enter Username to search for user: ");
+                String searchUsername = sc.nextLine();
+                System.out.println("Enter Choice:\n1. Block User\n2. Add User\n3. Remove friend\n4. Exit");
                 int choice = sc.nextInt();
                 switch (choice) {
                     case 1:
-                        System.out.println("Enter username to block:");
-                        String blockUsername = sc.nextLine();
-                        user.blockUser(blockUsername);
+                        user.blockUser(searchUsername);
                         break;
                     case 2:
-                        System.out.println("Enter username to add user:");
-                        String addUsername = sc.nextLine();
-                        user.addUser(addUsername);
+                        user.addUser(searchUsername);
                         break;
                     case 3:
+                        user.removeFriend(searchUsername);
+                        break;
+                    case 4:
                         done = true;
                         break;
                 }
