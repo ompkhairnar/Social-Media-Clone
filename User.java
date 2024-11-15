@@ -2,13 +2,15 @@ import java.io.*;
 import java.util.*;
 
 /**
-* User Class.
-*
-* <p>Purdue University -- CS18000 -- Fall 2024</p>
-*
-* @author Purdue CS
-* @version Nov 3rd, 2024
-*/
+ * User Class.
+ *
+ * <p>
+ * Purdue University -- CS18000 -- Fall 2024
+ * </p>
+ *
+ * @author Purdue CS
+ * @version Nov 3rd, 2024
+ */
 
 public class User implements UserInterface {
     private String username;
@@ -34,6 +36,8 @@ public class User implements UserInterface {
         }
         this.username = username;
         this.password = password;
+        this.friendList = new ArrayList<>();
+        this.blockedList = new ArrayList<>();
         loginUser();
     }
 
@@ -113,15 +117,20 @@ public class User implements UserInterface {
         }
         synchronized (User.class) {
             try (PrintWriter pw = new PrintWriter(new FileWriter(userStorage, true))) {
-                pw.println(username + "," + password + "," + String.join(";", friendList) + "," + String.join(";", blockedList));
+                pw.println(username + "," + password + "," + String.join(";", friendList) + ","
+                        + String.join(";", blockedList));
             } catch (IOException e) {
                 throw new UserException("Unable to create account");
             }
         }
     }
 
-    // makes sure user is not already a friend or blocked then adds user to friend list
+    // makes sure user is not already a friend or blocked then adds user to friend
+    // list
     public void addUser(String username) throws UserException {
+        if (!isUserNameTaken(username)) {
+            throw new UserException("Username does not exist");
+        }
         synchronized (friendList) {
             if (friendList.contains(username)) {
                 throw new UserException("User is already your friend");
@@ -140,6 +149,9 @@ public class User implements UserInterface {
 
     // makes sure user is not blocked then adds them to blocked list
     public void blockUser(String username) throws UserException {
+        if (!isUserNameTaken(username)) {
+            throw new UserException("Username does not exist");
+        }
         synchronized (blockedList) {
             if (blockedList.contains(username)) {
                 throw new UserException("User is already blocked");
@@ -153,16 +165,15 @@ public class User implements UserInterface {
     }
 
     // makes sure user is a friend then removes them
-    public void removeFriend(User user) throws UserException {
+    public void removeFriend(String username) throws UserException {
+        if (!isUserNameTaken(username)) {
+            throw new UserException("Username does not exist");
+        }
         synchronized (friendList) {
-            if (!friendList.contains(user.getUsername())) {
+            if (!friendList.contains(username)) {
                 throw new UserException("User is not your friend");
             }
-            friendList.remove(user.getUsername());
-        }
-        synchronized (user.friendList) {
-            user.friendList.remove(this.username);
-            user.updateCSV();
+            friendList.remove(username);
         }
         updateCSV();
     }

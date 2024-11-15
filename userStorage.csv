@@ -1,2 +1,3 @@
 sawyer,password,testFriend1;testFriend2,testBlocked1
-notSawyer,12345,,testBlocked1:testBlocked2senderUser2,password123,[],[]
+notSawyer,12345,,testBlocked1:testBlocked2
+testFriend1,pass,,
