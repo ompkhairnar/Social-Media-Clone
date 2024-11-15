@@ -121,43 +121,33 @@ public class User implements UserInterface {
     }
 
     // makes sure user is not already a friend or blocked then adds user to friend list
-    public void addUser(User user) throws UserException {
+    public void addUser(String username) throws UserException {
         synchronized (friendList) {
-            if (friendList.contains(user.getUsername())) {
+            if (friendList.contains(username)) {
                 throw new UserException("User is already your friend");
             }
         }
         synchronized (blockedList) {
-            if (blockedList.contains(user.getUsername())) {
+            if (blockedList.contains(username)) {
                 throw new UserException("You have this user blocked");
             }
         }
         synchronized (friendList) {
-            friendList.add(user.getUsername());
+            friendList.add(username);
         }
         updateCSV();
-        synchronized (user.friendList) {
-            if (!user.friendList.contains(this.username)) {
-                user.friendList.add(this.username);
-                user.updateCSV();
-            }
-        }
     }
 
     // makes sure user is not blocked then adds them to blocked list
-    public void blockUser(User user) throws UserException {
+    public void blockUser(String username) throws UserException {
         synchronized (blockedList) {
-            if (blockedList.contains(user.getUsername())) {
+            if (blockedList.contains(username)) {
                 throw new UserException("User is already blocked");
             }
-            blockedList.add(user.getUsername());
+            blockedList.add(username);
         }
         synchronized (friendList) {
-            friendList.remove(user.getUsername());
-        }
-        synchronized (user.friendList) {
-            user.friendList.remove(this.username);
-            user.updateCSV();
+            friendList.remove(username);
         }
         updateCSV();
     }
