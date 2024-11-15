@@ -11,9 +11,9 @@ import java.util.List;
 
 public interface UserInterface {
 
-    void addUser(User user) throws UserException;
+    void addUser(String user) throws UserException;
 
-    void blockUser(User user) throws UserException;
+    void blockUser(String user) throws UserException;
 
     void removeFriend(User user) throws UserException;
 
