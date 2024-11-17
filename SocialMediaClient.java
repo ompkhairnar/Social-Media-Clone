@@ -6,6 +6,7 @@ public class SocialMediaClient implements Runnable {
     private Socket socket;
     private ObjectOutputStream out;
     private ObjectInputStream in;
+    private boolean listening = true;
 
     public SocialMediaClient(String serverAddress, int port) throws IOException {
         this.socket = new Socket(serverAddress, port);
@@ -15,7 +16,13 @@ public class SocialMediaClient implements Runnable {
 
     @Override
     public void run() {
-        throw new UnsupportedOperationException("Unimplemented method 'run'");
+        try {
+            while (listening) {
+                handleMessage();
+            }
+        } catch (Exception e) {
+            System.err.println("Error in message listener: " + e.getMessage());
+        }
     }
 
     public void userLogin(String username, String password) {
@@ -61,12 +68,14 @@ public class SocialMediaClient implements Runnable {
             }
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error while handling message: " + e.getMessage());
+            listening = false; // Stop listening if there's a fatal error
         }
     }
 
-    /* close function
+    /*
     public void close() {
         try {
+            listening = false;
             if (in != null) in.close();
             if (out != null) out.close();
             if (socket != null) socket.close();
@@ -84,6 +93,10 @@ public class SocialMediaClient implements Runnable {
         try {
             SocialMediaClient client = new SocialMediaClient(host, portNumber);
 
+            // Start the thread to listen for incoming messages
+            Thread listenerThread = new Thread(client);
+            listenerThread.start();
+
             System.out.println("Enter your username:");
             String username = sc.nextLine();
             System.out.println("Enter your password:");
@@ -93,7 +106,7 @@ public class SocialMediaClient implements Runnable {
 
             boolean done = false;
             while (!done) {
-                System.out.println("Enter Choice:\n1. Send Message\n2. Block User\n3. Add User\n4. Remove Friend\n5. Exit");
+                System.out.println("Enter Choice:\n1. Send Message\n2. Block User\n3. Add Friend\n4. Remove Friend\n5. Exit");
                 String choice = sc.nextLine();
 
                 switch (choice) {
@@ -104,25 +117,30 @@ public class SocialMediaClient implements Runnable {
                         String content = sc.nextLine();
                         client.sendMessage(username, recipient, content);
                         break;
+
                     case "2":
                         System.out.println("Enter username to block:");
                         String blockUsername = sc.nextLine();
-                        System.out.println("Blocking functionality not implemented.");
+                        // function
                         break;
+
                     case "3":
-                        System.out.println("Enter username to add:");
+                        System.out.println("Enter username to add as a friend:");
                         String addUsername = sc.nextLine();
-                        System.out.println("Adding functionality not implemented.");
+                        // function
                         break;
+
                     case "4":
-                        System.out.println("Enter username to remove:");
+                        System.out.println("Enter username to remove from friends:");
                         String removeUsername = sc.nextLine();
-                        System.out.println("Removing functionality not implemented.");
+                        // function
                         break;
+
                     case "5":
                         done = true;
                         System.out.println("Exiting...");
                         break;
+
                     default:
                         System.out.println("Invalid choice. Please try again.");
                 }
