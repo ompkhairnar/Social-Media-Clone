@@ -1,56 +1,69 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public class SocialMediaClient {
 
-
-    public static void main(String[] args) throws UserException {
+    public static void main(String[] args) {
         int portNumber = 4545;
         String host = "localhost";
         Scanner sc = new Scanner(System.in);
-        System.out.println("Enter Username:");
-        String username = sc.nextLine();
-        System.out.println("Enter Password:");
-        String password = sc.nextLine();
+
         try (Socket socket = new Socket(host, portNumber);
-             BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
-             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-            User user = new User(username, password);
-            System.out.println("Successfully Logged In!");
-            boolean done = false;
-            while (!done) {
-                System.out.println("Enter Choice:\n1. Block User\n2. Add User\n3. Exit");
-                int choice = sc.nextInt();
-                switch (choice) {
-                    case 1:
-                        System.out.println("Enter username to block:");
-                        String blockUsername = sc.nextLine();
-                        user.blockUser(blockUsername);
-                        break;
-                    case 2:
-                        System.out.println("Enter username to add user:");
-                        String addUsername = sc.nextLine();
-                        user.addUser(addUsername);
-                        break;
-                    case 3:
-                        done = true;
-                        break;
-                }
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
+            System.out.println(in.readLine());
+            String username = sc.nextLine();
+            out.println(username);
+
+            System.out.println(in.readLine());
+            String password = sc.nextLine();
+            out.println(password);
+
+            // Handle login response
+            String loginResponse = in.readLine();
+            System.out.println(loginResponse);
+            if (!loginResponse.startsWith("Successfully")) {
+                return;
             }
 
+            boolean done = false;
+            while (!done) {
+                System.out.println("Enter Choice:\n1. Block User\n2. Add User\n3. Remove Friend\n4. Exit");
+                String choice = sc.nextLine();
+                out.println(choice);
+
+                switch (choice) {
+                    case "1":
+                        System.out.println("Enter username to block:");
+                        String blockUsername = sc.nextLine();
+                        out.println(blockUsername);
+                        break;
+                    case "2":
+                        System.out.println("Enter username to add:");
+                        String addUsername = sc.nextLine();
+                        out.println(addUsername);
+                        break;
+                    case "3":
+                        System.out.println("Enter username to remove:");
+                        String removeUsername = sc.nextLine();
+                        out.println(removeUsername);
+                        break;
+                    case "4":
+                        done = true;
+                        System.out.println("Exiting...");
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+
+                String serverResponse = in.readLine();
+                System.out.println("Server: " + serverResponse);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (UserException e) {
-            throw new UserException("User Not found");
         }
-
-
     }
 }
