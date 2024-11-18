@@ -1,5 +1,5 @@
 import java.io.*;
-import java.net.*;
+import java.net.Socket;
 import java.util.Scanner;
 
 public class SocialMediaClient implements Runnable {
@@ -73,69 +73,60 @@ public class SocialMediaClient implements Runnable {
         }
     }
 
-    /*
-     * public void close() {
-     * try {
-     * listening = false;
-     * if (in != null) in.close();
-     * if (out != null) out.close();
-     * if (socket != null) socket.close();
-     * } catch (IOException e) {
-     * System.err.println("Error while closing client: " + e.getMessage());
-     * }
-     * }
-     */
-
     public static void main(String[] args) {
         int portNumber = 4545;
         String host = "localhost";
         Scanner sc = new Scanner(System.in);
 
-        try {
-            SocialMediaClient client = new SocialMediaClient(host, portNumber);
+        try (Socket socket = new Socket(host, portNumber);
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-            // Start the thread to listen for incoming messages
-            Thread listenerThread = new Thread(client);
-            listenerThread.start();
-
-            System.out.println("Enter your username:");
+            // Login process
+            System.out.println(in.readLine()); // Server: Enter username
             String username = sc.nextLine();
-            System.out.println("Enter your password:");
-            String password = sc.nextLine();
+            out.println(username);
 
-            client.userLogin(username, password);
+            System.out.println(in.readLine()); // Server: Enter password
+            String password = sc.nextLine();
+            out.println(password);
+
+            // Handle login response
+            String loginResponse = in.readLine();
+            System.out.println(loginResponse);
+            if (!loginResponse.startsWith("Successfully")) {
+                return;
+            }
 
             boolean done = false;
             while (!done) {
-                System.out.println(
-                        "Enter Choice:\n1. Send Message\n2. Block User\n3. Add Friend\n4. Remove Friend\n5. Exit");
+                // Display menu
+                System.out.println("""
+                        Enter Choice:
+                        1. Block User
+                        2. Add User
+                        3. Remove Friend
+                        4. Send Message
+                        5. Exit
+                        """);
                 String choice = sc.nextLine();
+                out.println(choice);
 
                 switch (choice) {
-                    case "1":
-                        System.out.println("Enter recipient username:");
-                        String recipient = sc.nextLine();
-                        System.out.println("Enter message content:");
-                        String content = sc.nextLine();
-                        client.sendMessage(username, recipient, content);
-                        break;
-
-                    case "2":
+                    case "1": // Block a user
                         System.out.println("Enter username to block:");
                         String blockUsername = sc.nextLine();
-                        // function
+                        out.println(blockUsername);
                         break;
-
-                    case "3":
-                        System.out.println("Enter username to add as a friend:");
+                    case "2": // Add a user
+                        System.out.println("Enter username to add:");
                         String addUsername = sc.nextLine();
-                        // function
+                        out.println(addUsername);
                         break;
-
-                    case "4":
-                        System.out.println("Enter username to remove from friends:");
+                    case "3": // Remove a friend
+                        System.out.println("Enter username to remove:");
                         String removeUsername = sc.nextLine();
-                        // function
+                        out.println(removeUsername);
                         break;
                     case "4": // Send a message
                         System.out.println("Enter the username of the recipient:");
@@ -147,20 +138,22 @@ public class SocialMediaClient implements Runnable {
                         out.println(messageContent);
                         break;
                     case "5": // Exit the client
-
-                    case "5":
                         done = true;
                         System.out.println("Exiting...");
                         break;
-
                     default:
                         System.out.println("Invalid choice. Please try again.");
                 }
+
+                // Display server's response
+                String serverResponse = in.readLine();
+                System.out.println("Server: " + serverResponse);
             }
 
-            client.close();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            sc.close();
         }
     }
 }
