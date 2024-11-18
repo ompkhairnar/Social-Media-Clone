@@ -182,29 +182,31 @@ public class SocialMediaClient implements Runnable {
                     case "1":
                         System.out.println("Enter the username of the recipient:");
                         String recipient = sc.nextLine();
+                        out.println(recipient);
+                        
                         System.out.println("Enter your message:");
                         String content = sc.nextLine();
-                        client.sendMessage(username, recipient, content);
+                        out.println(content);
                         break;
                     case "2":
                         System.out.println("Enter the username of the user to retrieve messages with:");
                         String otherUser = sc.nextLine();
-                        client.retrieveMessages(username, otherUser);
+                        out.println(otherUser);
                         break;
                     case "3":
                         System.out.println("Enter the username of the user to add:");
-                        String friendToAdd = sc.nextLine();
-                        client.addUser(username, friendToAdd);
+                        String addUsername = sc.nextLine();
+                        out.println(addUsername);
                         break;
                     case "4":
                         System.out.println("Enter the username of the friend to remove:");
-                        String friendToRemove = sc.nextLine();
-                        client.removeFriend(username, friendToRemove);
+                        String removeUsername = sc.nextLine();
+                        out.println(removeUsername);
                         break;
                     case "5":
                         System.out.println("Enter the username of the user to block:");
-                        String userToBlock = sc.nextLine();
-                        client.blockUser(username, userToBlock);
+                        String blockUsername = sc.nextLine();
+                        out.println(blockUsername);
                         break;    
                     case "6":
                         done = true;
