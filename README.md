@@ -92,7 +92,7 @@
    - **Testing**: Verifies message functionality and exception handling.
    - **Relationship**: Tests the `Message.java` and `MessageException.java` classes.
 
-### 11. SocialMediaClient.java
+### 11. `SocialMediaClient.java`
 - **Description**:  
   This class represents the client-side of the social media platform. It enables communication with the server, allowing users to send messages, manage relationships (add/remove friends, block users), and retrieve messages. The client handles user inputs and sends requests to the server while processing responses from the server.
 
@@ -113,7 +113,7 @@
   - Uses `Message.java` for local message storage and sending messages.
   - Interacts with `User.java` and `UserInterface.java` for user-related operations and data validation.
 
-### 12. SocialMediaClientInterface.java
+### 12. `SocialMediaClientInterface.java`
 - **Description**:  
   This interface defines the core operations for the social media client. It provides the structure for user authentication, sending and receiving messages, and managing the client's connection to the server.
 
@@ -130,7 +130,7 @@
 - **Relationship**:  
   - Implemented by `SocialMediaClient.java` to ensure consistent and well-defined behavior for client operations.
   
-### 13. SocialMediaServer.java
+### 13. `SocialMediaServer.java`
 - **Description**:  
   This class represents the server-side of the social media platform. It manages client connections, processes requests (e.g., user login, messaging, and friend management), and ensures data consistency across all clients. The server runs in a multithreaded environment to handle multiple clients simultaneously.
 
@@ -150,7 +150,7 @@
   - Uses `FoundationDatabase.java` for persistent user data storage and retrieval.
   - Relies on `User.java` and `Message.java` for user-related operations and message management.
 
- ### 14. SocialMediaServerInterface.java
+ ### 14. `SocialMediaServerInterface.java`
 - **Description**:  
   This interface defines the core operations for the social media server. It provides the structure for starting, stopping, and managing the server, as well as handling individual client connections.
 
