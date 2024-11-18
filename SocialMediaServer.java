@@ -1,6 +1,15 @@
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+/**
+ * Social Media Server class that connects to a social media platform server
+ * and integrates local message storage with the Message class.
+ *
+ * <p>Purdue University -- CS18000 -- Fall 2024</p>
+ *
+ * @author Sawyer, Bidit, Richard, Om
+ * @version 1.0 November 17th, 2024
+ */
 
 public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
     private static final int PORT = 4545;

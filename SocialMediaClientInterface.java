@@ -1,6 +1,5 @@
 /**
- * SocialMediaClient class that connects to a social media platform server
- * and integrates local message storage with the Message class.
+ * Interface for social media client
  *
  * <p>Purdue University -- CS18000 -- Fall 2024</p>
  *

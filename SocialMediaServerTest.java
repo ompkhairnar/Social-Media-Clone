@@ -5,6 +5,15 @@ import static org.junit.Assert.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+/**
+ * SocialMediaClient class that connects to a social media platform server
+ * and integrates local message storage with the Message class.
+ *
+ * <p>Purdue University -- CS18000 -- Fall 2024</p>
+ *
+ * @author Sawyer, Bidit, Richard, Om
+ * @version 1.0 November 17th, 2024
+ */
 
 public class SocialMediaServerTest {
 
