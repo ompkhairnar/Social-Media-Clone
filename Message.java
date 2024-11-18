@@ -21,6 +21,9 @@ public class Message implements MessageInterface {
     }
 
     public Message(User messager, User receiver, String content) throws UserException {
+        if (!messager.isValidUser(messager)) {
+            throw new UserException("Invalid user");
+        }
         this.messager = messager;
         this.content = content;
     }
