@@ -4,9 +4,9 @@ import java.util.Scanner;
 
 /**
  * SocialMediaClient class that connects to a social media platform server
- * to manage user interactions in real-time.
+ * and integrates local message storage with the Message class.
  *
- * <p> Purdue University -- CS18000 -- Fall 2024</p>
+ * <p>Purdue University -- CS18000 -- Fall 2024</p>
  *
  * @author Sawyer, Bidit, Richard
  * @version November 17th, 2024
@@ -63,13 +63,39 @@ public class SocialMediaClient implements Runnable {
 
     public void sendMessage(String sender, String receiver, String content) {
         try {
-            Message message = new Message(sender, receiver, content);
-            out.writeObject(message);
-            out.flush();
-            System.out.println("Message sent to server: " + message);
+            // Create User objects for sender and receiver
+            User senderUser = new User(sender);
+            User receiverUser = new User(receiver);
 
-        } catch (IOException e) {
+            // Create and use Message object
+            Message messageHandler = new Message(senderUser, receiverUser, content);
+
+            // Store the message locally
+            messageHandler.messageUser(receiverUser, content);
+
+            // Send the message to the server
+            out.writeObject(messageHandler);
+            out.flush();
+
+            System.out.println("Message sent and stored locally.");
+        } catch (UserException | IOException e) {
             System.err.println("Error while sending message: " + e.getMessage());
+        }
+    }
+
+    public void retrieveMessages(String sender, String receiver) {
+        try {
+            // Create User objects for sender and receiver
+            User senderUser = new User(sender);
+            User receiverUser = new User(receiver);
+
+            // Use the Message object to retrieve local messages
+            Message messageHandler = new Message(senderUser);
+            String messages = messageHandler.getMessages(receiverUser);
+
+            System.out.println("Message history:\n" + messages);
+        } catch (UserException e) {
+            System.err.println("Error retrieving messages: " + e.getMessage());
         }
     }
 
@@ -79,7 +105,7 @@ public class SocialMediaClient implements Runnable {
             if (response instanceof Message) {
                 Message receivedMessage = (Message) response;
                 System.out.printf("New message from %s: %s\n",
-                        receivedMessage.getSender(),
+                        receivedMessage.getMessager().getUsername(),
                         receivedMessage.getContent());
             } else if (response instanceof String) {
                 System.out.println("Server notification: " + response);
@@ -128,48 +154,37 @@ public class SocialMediaClient implements Runnable {
 
             boolean done = false;
             while (!done) {
-                // menu
                 System.out.println("""
                         Enter Choice:
                         1. Send Message
-                        2. Block User
-                        3. Add User
-                        4. Remove Friend
-                        5. Exit
+                        2. Retrieve Messages
+                        3. Exit
                         """);
                 String choice = sc.nextLine();
 
                 switch (choice) {
-                    case "1":   // send message
+                    case "1":
                         System.out.println("Enter the username of the recipient:");
                         String recipient = sc.nextLine();
                         System.out.println("Enter your message:");
                         String content = sc.nextLine();
                         client.sendMessage(username, recipient, content);
                         break;
-                    case "2": // Block a user
-                        System.out.println("Enter username to block:");
-                        String blockUsername = sc.nextLine();
-                        out.println(blockUsername);
+                    case "2":
+                        System.out.println("Enter the username of the user to retrieve messages with:");
+                        String otherUser = sc.nextLine();
+                        client.retrieveMessages(username, otherUser);
                         break;
-                    case "3": // Add a user
-                        System.out.println("Enter username to add:");
-                        String addUsername = sc.nextLine();
-                        out.println(addUsername);
-                        break;
-                    case "4": // Remove a friend
-                        System.out.println("Enter username to remove:");
-                        String removeUsername = sc.nextLine();
-                        out.println(removeUsername);
-                        break;
-                    case "5":  // exit client
+                    case "3":
                         done = true;
                         System.out.println("Exiting...");
                         break;
                     default:
                         System.out.println("Invalid choice. Please try again.");
                 }
-                client.close();
+            }
+
+            client.close();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
