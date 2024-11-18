@@ -2,6 +2,16 @@ import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 
+/**
+ * SocialMediaClient class that connects to a social media platform server
+ * to manage user interactions in real-time.
+ *
+ * <p> Purdue University -- CS18000 -- Fall 2024</p>
+ *
+ * @author Sawyer, Bidit, Richard
+ * @version November 17th, 2024
+ */
+
 public class SocialMediaClient implements Runnable {
     private Socket socket;
     private ObjectOutputStream out;
