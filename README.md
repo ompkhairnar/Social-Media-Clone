@@ -20,9 +20,13 @@
 | Student | Parts Done | Parts Submitted | Date Submitted | 
 | ------- | ---------- | --------------- | -------------- |
 | Richard Yom | Second half of database file, README file | Database | 11/3 |
+|             | SocialMediaClient: handle, send, & retrieve, readME |  n/a    | 11/17 |
 | Om Khairnar | Messager-related files, test cases | Messenger | 11/3 |
+|             | SocialMediaServer and test cases | SocialMediaServer | 11/17 |
 | Sawyer Boursheski | User-related files, test cases | User | 11/3 |
+|                   | SocialMediaClient functionality, test cases for server |  | 11/17 |
 | Bidit Acharyya | First half of database file, test cases | N/A | 11/3 | 
+| Bidit Acharyya | SocialMediaClient | N/A | 11/17 | 
 
 
 
