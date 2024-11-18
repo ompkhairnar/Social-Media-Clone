@@ -1,10 +1,13 @@
-import org.junit.Before;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+
+import static org.junit.Assert.*;
+
 /**
  * SocialMediaClient class that connects to a social media platform server
  * and integrates local message storage with the Message class.
@@ -53,8 +56,8 @@ public class SocialMediaServerTest {
     @Test
     public void testSuccessfulLogin() throws Exception {
         try (Socket socket = new Socket("localhost", 4545);
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             assertEquals("Enter Username:", in.readLine());
             out.println("sawyer");
@@ -67,8 +70,8 @@ public class SocialMediaServerTest {
     @Test
     public void testFailedLogin() throws Exception {
         try (Socket socket = new Socket("localhost", 4545);
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             assertEquals("Enter Username:", in.readLine());
             out.println("nonexistentUser");
@@ -81,8 +84,8 @@ public class SocialMediaServerTest {
     @Test
     public void testBlockUser() throws Exception {
         try (Socket socket = new Socket("localhost", 4545);
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             // Login
             in.readLine(); // "Enter Username:"
@@ -101,8 +104,8 @@ public class SocialMediaServerTest {
     @Test
     public void testAddUser() throws Exception {
         try (Socket socket = new Socket("localhost", 4545);
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             // Login
             in.readLine(); // "Enter Username:"
@@ -121,8 +124,8 @@ public class SocialMediaServerTest {
     @Test
     public void testRemoveFriend() throws Exception {
         try (Socket socket = new Socket("localhost", 4545);
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             // Login
             in.readLine(); // "Enter Username:"
@@ -141,8 +144,8 @@ public class SocialMediaServerTest {
     @Test
     public void testExitCommand() throws Exception {
         try (Socket socket = new Socket("localhost", 4545);
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             // Login
             in.readLine(); // "Enter Username:"
@@ -160,8 +163,8 @@ public class SocialMediaServerTest {
     @Test
     public void testMessage() throws Exception {
         try (Socket socket = new Socket("localhost", 4545);
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             // Login
             in.readLine(); // "Enter Username:"
@@ -175,16 +178,16 @@ public class SocialMediaServerTest {
             out.println("notSawyer");
             System.out.println(in.readLine()); // "Enter your message:"
             assertEquals("Enter your message:", in.readLine());
-            //out.println("bye");
-            //assertEquals("Message sent successfully to acharyya.", in.readLine());
+            out.println("bye");
+            assertEquals("Message sent successfully to notSawyer.", in.readLine());
         }
     }
 
     @Test
     public void testMessageFailure() throws Exception {
         try (Socket socket = new Socket("localhost", 4545);
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             // Login
             in.readLine(); // "Enter Username:"
@@ -195,8 +198,8 @@ public class SocialMediaServerTest {
 
             // Exit
             out.println("4"); // Choose message option
-            out.println("acharyya");
-            assertEquals("Enter the username of the recipient:", in.readLine());
+            out.println("bidit123");
+            assertEquals("Error: Recipient username does not exist.", in.readLine());
         }
     }
 
