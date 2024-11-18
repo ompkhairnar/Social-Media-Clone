@@ -91,3 +91,25 @@
    - **Functionality**: Ensures that message operations like sending and receiving work correctly.
    - **Testing**: Verifies message functionality and exception handling.
    - **Relationship**: Tests the `Message.java` and `MessageException.java` classes.
+
+### 11. `SocialMediaClient.java`
+- **Description**: Handles client-side operations for the platform. Manages user interactions, processes inputs, and communicates with the server.
+- **Functionality**:
+  - Sends requests to the server for actions like login, messaging, and managing relationships.
+  - Processes server responses and displays relevant output to the user.
+  - Runs a listener thread for handling notifications and messages from the server.
+- **Key Methods**:
+  - `userLogin(String username, String password)`: Authenticates the user with the server.
+  - `sendMessage(String sender, String receiver, String content)`: Sends a message to another user.
+  - `retrieveMessages(String sender, String receiver)`: Retrieves the message history between two users.
+
+### 12. `SocialMediaServer.java`
+- **Description**: Manages server-side operations, handling client requests and maintaining user data consistency.
+- **Functionality**:
+  - Processes requests from connected clients, such as login, sending messages, and managing friends.
+  - Synchronizes shared resources like user data and messages.
+  - Runs a multithreaded environment for concurrent client handling.
+- **Key Methods**:
+  - `startServer()`: Starts the server and listens for incoming client connections.
+  - `handleClient(Socket clientSocket)`: Handles client communication using the `ClientHandler` inner class.
+  - `stopServer()`: Stops the server gracefully.
