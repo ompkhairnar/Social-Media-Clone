@@ -41,6 +41,16 @@ public class User implements UserInterface {
         loginUser();
     }
 
+    public User(String username) throws UserException {
+        if (username.contains(" ")) {
+            throw new UserException("Bad User Data");
+        }
+        this.username = username;
+        this.password = null; // Not needed for single-param usage
+        this.friendList = new ArrayList<>(); // Empty for this case
+        this.blockedList = new ArrayList<>(); // Empty for this case
+    }
+
     public User(UserException e) {
         username = e.getMessage();
         password = e.getMessage();
