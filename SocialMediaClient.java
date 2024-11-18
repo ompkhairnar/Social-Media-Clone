@@ -28,10 +28,16 @@ public class SocialMediaClient implements Runnable {
     public void run() {
         try {
             while (listening) {
-                handleMessage();
+                try {
+                    handleMessage();
+                } catch (Exception e) {
+                    System.err.println("Error in message listener: " + e.getMessage());
+                    listening = false; // stop listening
+                    break; 
+                }
             }
-        } catch (Exception e) {
-            System.err.println("Error in message listener: " + e.getMessage());
+        } finally {
+            close(); 
         }
     }
 
@@ -119,16 +125,23 @@ public class SocialMediaClient implements Runnable {
     }
 
     public void close() {
+        listening = false; // stop listening
         try {
-            listening = false;
-            if (in != null) in.close();
-            if (out != null) out.close();
-            if (socket != null) socket.close();
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+            System.out.println("Client closed successfully.");
         } catch (IOException e) {
             System.err.println("Error while closing client: " + e.getMessage());
         }
     }
-
+    
     public static void main(String[] args) {
         int portNumber = 4545;
         String host = "localhost";
