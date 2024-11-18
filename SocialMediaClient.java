@@ -171,7 +171,10 @@ public class SocialMediaClient implements Runnable {
                         Enter Choice:
                         1. Send Message
                         2. Retrieve Messages
-                        3. Exit
+                        3. Add Friend
+                        4. Remove Friend
+                        5. Block User
+                        6. Exit
                         """);
                 String choice = sc.nextLine();
 
@@ -189,6 +192,21 @@ public class SocialMediaClient implements Runnable {
                         client.retrieveMessages(username, otherUser);
                         break;
                     case "3":
+                        System.out.println("Enter the username of the user to add:");
+                        String friendToAdd = sc.nextLine();
+                        client.addUser(username, friendToAdd);
+                        break;
+                    case "4":
+                        System.out.println("Enter the username of the friend to remove:");
+                        String friendToRemove = sc.nextLine();
+                        client.removeFriend(username, friendToRemove);
+                        break;
+                    case "5":
+                        System.out.println("Enter the username of the user to block:");
+                        String userToBlock = sc.nextLine();
+                        client.blockUser(username, userToBlock);
+                        break;    
+                    case "6":
                         done = true;
                         System.out.println("Exiting...");
                         break;
