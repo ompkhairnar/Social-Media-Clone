@@ -115,7 +115,7 @@
 
 ### 12. `SocialMediaClientInterface.java`
 - **Description**:  
-  This interface defines the core operations for the social media client. It provides the structure for user authentication, sending and receiving messages, and managing the client's connection to the server.
+  This interface provides the structure for user authentication, sending and receiving messages, and managing the client's connection to the server.
 
 - **Functionality**:  
   - `userLogin(String username, String password)`: Authenticates the user with the server using the provided credentials.
@@ -125,10 +125,10 @@
   - `retrieveMessages(String sender, String receiver)`: Retrieves the message history between the sender and the receiver.
 
 - **Testing**:  
-  - Verified through implementation in `SocialMediaClient.java` and testing various scenarios, including invalid login attempts, successful and failed message delivery, and message retrieval.
+  - Verified through implementation in `SocialMediaClient.java`.
 
 - **Relationship**:  
-  - Implemented by `SocialMediaClient.java` to ensure consistent and well-defined behavior for client operations.
+  - Implemented by `SocialMediaClient.java`.
   
 ### 13. `SocialMediaServer.java`
 - **Description**:  
@@ -152,7 +152,7 @@
 
  ### 14. `SocialMediaServerInterface.java`
 - **Description**:  
-  This interface defines the core operations for the social media server. It provides the structure for starting, stopping, and managing the server, as well as handling individual client connections.
+  This interface provides the structure for starting, stopping, and managing the server, as well as handling individual client connections.
 
 - **Functionality**:  
   - `startServer()`: Starts the server and initializes the `ServerSocket` to listen for incoming client connections.
@@ -161,8 +161,7 @@
   - `handleClient(Socket clientSocket)`: Handles communication with a connected client using the given socket.
 
 - **Testing**:  
-  - Verified through integration with `SocialMediaServer.java` to ensure proper implementation of all methods.
-  - Includes edge case testing for server shutdowns, client disconnections, and concurrent client handling.
+  - Verified through integration with `SocialMediaServer.java`.
 
 - **Relationship**:  
-  - Implemented by `SocialMediaServer.java` to define the server's functionality and ensure consistent behavior.
+  - Implemented by `SocialMediaServer.java`.
