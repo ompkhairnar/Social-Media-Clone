@@ -118,31 +118,48 @@ public class SocialMediaClient implements Runnable {
 
             boolean done = false;
             while (!done) {
+                // menu
                 System.out.println("""
                         Enter Choice:
                         1. Send Message
-                        2. Exit
+                        2. Block User
+                        3. Add User
+                        4. Remove Friend
+                        5. Exit
                         """);
                 String choice = sc.nextLine();
 
                 switch (choice) {
-                    case "1":
+                    case "1":   // send message
                         System.out.println("Enter the username of the recipient:");
                         String recipient = sc.nextLine();
                         System.out.println("Enter your message:");
                         String content = sc.nextLine();
                         client.sendMessage(username, recipient, content);
                         break;
-                    case "2":
+                    case "2": // Block a user
+                        System.out.println("Enter username to block:");
+                        String blockUsername = sc.nextLine();
+                        out.println(blockUsername);
+                        break;
+                    case "3": // Add a user
+                        System.out.println("Enter username to add:");
+                        String addUsername = sc.nextLine();
+                        out.println(addUsername);
+                        break;
+                    case "4": // Remove a friend
+                        System.out.println("Enter username to remove:");
+                        String removeUsername = sc.nextLine();
+                        out.println(removeUsername);
+                        break;
+                    case "5":  // exit client
                         done = true;
                         System.out.println("Exiting...");
                         break;
                     default:
                         System.out.println("Invalid choice. Please try again.");
                 }
-            }
-
-            client.close();
+                client.close();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
