@@ -112,4 +112,4 @@
 - **Key Methods**:
   - `startServer()`: Starts the server and listens for incoming client connections.
   - `handleClient(Socket clientSocket)`: Handles client communication using the `ClientHandler` inner class.
-  - `stopServer()`: Stops the server gracefully.
+  - `stopServer()`: Stops the server.
