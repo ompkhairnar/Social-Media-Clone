@@ -1,29 +1,19 @@
+/**
+ * SocialMediaClient class that connects to a social media platform server
+ * and integrates local message storage with the Message class.
+ *
+ * <p>Purdue University -- CS18000 -- Fall 2024</p>
+ *
+ * @author Sawyer, Bidit, Richard, Om
+ * @version 1.0 November 17th, 2024
+ */
 public interface SocialMediaClientInterface {
-    /**
-     * Logs in a user with the provided username and password.
-     * 
-     * @param username the username of the user
-     * @param password the password of the user
-     * @return true if login is successful, false otherwise
-     */
+
     boolean userLogin(String username, String password);
 
-    /**
-     * Sends a message to another user.
-     * 
-     * @param sender   the username of the sender
-     * @param receiver the username of the receiver
-     * @param content  the content of the message
-     */
     void sendMessage(String sender, String receiver, String content);
 
-    /**
-     * Handles incoming messages or server notifications.
-     */
     void handleMessage();
 
-    /**
-     * Closes the client, including all streams and the socket connection.
-     */
     void close();
 }

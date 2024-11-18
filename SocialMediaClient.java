@@ -1,11 +1,6 @@
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
-/*
-@author Om Khairnar
-@Version 1.0 11/15/2024
-Client for the social media
- */
 
 /**
  * SocialMediaClient class that connects to a social media platform server
@@ -13,8 +8,8 @@ Client for the social media
  *
  * <p>Purdue University -- CS18000 -- Fall 2024</p>
  *
- * @author Sawyer, Bidit, Richard
- * @version November 17th, 2024
+ * @author Sawyer, Bidit, Richard, Om
+ * @version 1.0 November 17th, 2024
  */
 
 public class SocialMediaClient implements Runnable {
