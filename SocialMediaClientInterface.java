@@ -26,4 +26,6 @@ public interface SocialMediaClientInterface {
      * Closes the client, including all streams and the socket connection.
      */
     void close();
+
+    void retrieveMessages(String sender, String receiver);
 }
