@@ -20,6 +20,11 @@ public class Message implements MessageInterface {
         this.messager = messager;
     }
 
+    public Message(User messager, User receiver, String content) throws UserException {
+        this.messager = messager;
+        this.content = content;
+    }
+
     // Error constructor
     public Message(UserException e) {
         this.messager = new User(e);
