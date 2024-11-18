@@ -11,6 +11,7 @@ Om Wrote all code for the Message class.
 public class Message implements MessageInterface {
     private final User messager; // The user sending the messages
     private final Object fileLock = new Object(); // Lock object for thread safety
+    private final String content;
 
     // Constructor taking in the messager user
     public Message(User messager) throws UserException {
@@ -55,6 +56,10 @@ public class Message implements MessageInterface {
     // Getter method for the messager user
     public User getMessager() {
         return messager;
+    }
+
+    public String getContent() {
+        return content;
     }
 
     // Returns the file of messages between users
