@@ -93,8 +93,7 @@
    - **Relationship**: Tests the `Message.java` and `MessageException.java` classes.
 
 ### 11. `SocialMediaClient.java`
-- **Description**:  
-  This class represents the client-side of the social media platform. It enables communication with the server, allowing users to send messages, manage relationships (add/remove friends, block users), and retrieve messages. The client handles user inputs and sends requests to the server while processing responses from the server.
+- **Description**: This class represents the client-side of the social media platform. It enables communication with the server, allowing users to send messages, manage relationships (add/remove friends, block users), and retrieve messages. The client handles user inputs and sends requests to the server while processing responses from the server.
 
 - **Functionality**:  
   - Implements methods for:
@@ -105,8 +104,7 @@
   - Maintains a persistent connection with the server using `Socket`, `ObjectOutputStream`, and `ObjectInputStream`.
   - Includes a listener thread to handle incoming messages or notifications from the server.
 
-- **Testing**:  
-  Verified through manual testing of client-server interactions, including edge cases like invalid usernames, login failures, and blocked user scenarios. 
+- **Testing**: Verified through manual testing of client-server interactions, including edge cases like invalid usernames, login failures, and blocked user scenarios. 
 
 - **Relationship**:  
   - Communicates with the server via `SocialMediaServer.java`.
@@ -114,8 +112,7 @@
   - Interacts with `User.java` and `UserInterface.java` for user-related operations and data validation.
 
 ### 12. `SocialMediaClientInterface.java`
-- **Description**:  
-  This interface provides the structure for user authentication, sending and receiving messages, and managing the client's connection to the server.
+- **Description**: This interface provides the structure for user authentication, sending and receiving messages, and managing the client's connection to the server.
 
 - **Functionality**:  
   - `userLogin(String username, String password)`: Authenticates the user with the server using the provided credentials.
@@ -124,15 +121,12 @@
   - `close()`: Closes the connection between the client and the server, releasing all resources.
   - `retrieveMessages(String sender, String receiver)`: Retrieves the message history between the sender and the receiver.
 
-- **Testing**:  
-  - Verified through implementation in `SocialMediaClient.java`.
+- **Testing**: Verified through implementation in `SocialMediaClient.java`.
 
-- **Relationship**:  
-  - Implemented by `SocialMediaClient.java`.
+- **Relationship**: Implemented by `SocialMediaClient.java`.
   
 ### 13. `SocialMediaServer.java`
-- **Description**:  
-  This class represents the server-side of the social media platform. It manages client connections, processes requests (e.g., user login, messaging, and friend management), and ensures data consistency across all clients. The server runs in a multithreaded environment to handle multiple clients simultaneously.
+- **Description**: This class represents the server-side of the social media platform. It manages client connections, processes requests (e.g., user login, messaging, and friend management), and ensures data consistency across all clients. The server runs in a multithreaded environment to handle multiple clients simultaneously.
 
 - **Functionality**:  
   - Implements methods for:
@@ -142,8 +136,7 @@
   - Runs a multithreaded server using `ServerSocket` and `Socket` to allow concurrent connections.
   - Provides robust error handling for failed operations or invalid inputs.
 
-- **Testing**:  
-  Verified through integration testing with `SocialMediaClient.java`, focusing on scenarios like invalid login attempts, concurrent client connections, blocked user restrictions, and message history retrieval. SocialMediaServerTest.java
+- **Testing**: Verified through integration testing with `SocialMediaClient.java`, focusing on scenarios like invalid login attempts, concurrent client connections, blocked user restrictions, and message history retrieval. SocialMediaServerTest.java
 
 - **Relationship**:  
   - Communicates with `SocialMediaClient.java` to handle client requests and responses.
@@ -151,8 +144,7 @@
   - Relies on `User.java` and `Message.java` for user-related operations and message management.
 
  ### 14. `SocialMediaServerInterface.java`
-- **Description**:  
-  This interface provides the structure for starting, stopping, and managing the server, as well as handling individual client connections.
+- **Description**: This interface provides the structure for starting, stopping, and managing the server, as well as handling individual client connections.
 
 - **Functionality**:  
   - `startServer()`: Starts the server and initializes the `ServerSocket` to listen for incoming client connections.
@@ -160,8 +152,6 @@
   - `isRunning()`: Returns the current status of the server (running or stopped).
   - `handleClient(Socket clientSocket)`: Handles communication with a connected client using the given socket.
 
-- **Testing**:  
-  - Verified through integration with `SocialMediaServer.java`.
+- **Testing**: Verified through integration with `SocialMediaServer.java`.
 
-- **Relationship**:  
-  - Implemented by `SocialMediaServer.java`.
+- **Relationship**: Implemented by `SocialMediaServer.java`.
