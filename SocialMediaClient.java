@@ -5,6 +5,11 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
+/*
+@author Om Khairnar
+@Version 1.0 11/15/2024
+Client for the social media
+ */
 
 public class SocialMediaClient {
 
