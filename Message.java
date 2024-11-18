@@ -11,7 +11,7 @@ Om Wrote all code for the Message class.
 public class Message implements MessageInterface {
     private final User messager; // The user sending the messages
     private final Object fileLock = new Object(); // Lock object for thread safety
-    private final String content = "";
+    private final String content; // should be final to lock message contents
 
     // Constructor taking in the messager user
     public Message(User messager) throws UserException {
@@ -19,6 +19,7 @@ public class Message implements MessageInterface {
             throw new UserException("Invalid user");
         }
         this.messager = messager;
+        this.content = "No content"; // default
     }
 
     public Message(User messager, User receiver, String content) throws UserException {
@@ -32,6 +33,7 @@ public class Message implements MessageInterface {
     // Error constructor
     public Message(UserException e) {
         this.messager = new User(e);
+        this.content = "Error: Invalid content"; // default for error
     }
 
     // Actual method where the messager messages a user. It creates a new file
