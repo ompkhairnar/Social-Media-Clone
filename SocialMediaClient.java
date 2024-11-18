@@ -30,7 +30,8 @@ public class SocialMediaClient {
 
             boolean done = false;
             while (!done) {
-                System.out.println("Enter Choice:\n1. Block User\n2. Add User\n3. Remove Friend\n4. Exit");
+                System.out.println(
+                        "Enter Choice:\n1. Block User\n2. Add User\n3. Remove Friend\n4. Message User\n5. Exit");
                 String choice = sc.nextLine();
                 out.println(choice);
 
@@ -50,7 +51,16 @@ public class SocialMediaClient {
                         String removeUsername = sc.nextLine();
                         out.println(removeUsername);
                         break;
-                    case "4":
+                    case "4": // Send a message
+                        System.out.println("Enter the username of the recipient:");
+                        String recipientUsername = sc.nextLine();
+                        out.println(recipientUsername);
+
+                        System.out.println("Enter your message:");
+                        String messageContent = sc.nextLine();
+                        out.println(messageContent);
+                        break;
+                    case "5": // Exit the client
                         done = true;
                         System.out.println("Exiting...");
                         break;

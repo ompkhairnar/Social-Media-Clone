@@ -127,7 +127,61 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                             }
                             break;
 
-                        case "4": // exit
+                        case "4": // Message a user
+                            try {
+                                // Prompt for the recipient's username
+                                out.println("Enter the username of the recipient:");
+                                String recipientUsername = in.readLine();
+
+                                // Check if the recipient exists in the FoundationDatabase
+                                User recipient = null;
+                                synchronized (database.getUsers()) {
+                                    for (User u : database.getUsers()) {
+                                        if (u.getUsername().equalsIgnoreCase(recipientUsername)) {
+                                            recipient = u;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (recipient == null) {
+                                    out.println("Error: Recipient username does not exist.");
+                                    break;
+                                }
+
+                                // Check for blocking conditions
+                                if (user.getUserBlocked().contains(recipientUsername)) {
+                                    out.println("Error: You cannot message a user you have blocked.");
+                                    break;
+                                }
+
+                                if (recipient.getUserBlocked().contains(user.getUsername())) {
+                                    out.println("Error: You have been blocked by this user.");
+                                    break;
+                                }
+
+                                // Prompt for the message content
+                                out.println("Enter your message:");
+                                String messageContent = in.readLine();
+
+                                // Use the Message class to append the message to the file
+                                try {
+                                    Message message = new Message(user);
+                                    message.messageUser(recipient, messageContent);
+
+                                    out.println("Message sent successfully to " + recipient.getUsername() + ".");
+                                    System.out.println("Message from " + user.getUsername() + " to "
+                                            + recipient.getUsername() + ": " + messageContent);
+                                } catch (UserException e) {
+                                    out.println("Error: " + e.getMessage());
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                out.println("An error occurred while processing your request.");
+                            }
+                            break;
+
+                        case "5": // exit
                             done = true; // exits loop
                             out.println("Goodbye!"); // send goodbye to client
                             break;
