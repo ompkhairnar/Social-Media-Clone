@@ -157,4 +157,47 @@ public class SocialMediaServerTest {
         }
     }
 
+    @Test
+    public void testMessage() throws Exception {
+        try (Socket socket = new Socket("localhost", 4545);
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
+            // Login
+            in.readLine(); // "Enter Username:"
+            out.println("sawyer");
+            in.readLine(); // "Enter Password:"
+            out.println("password");
+            in.readLine(); // "Successfully Logged In!"
+
+            // Exit
+            out.println("4"); // Choose message option
+            out.println("notSawyer");
+            System.out.println(in.readLine()); // "Enter your message:"
+            assertEquals("Enter your message:", in.readLine());
+            //out.println("bye");
+            //assertEquals("Message sent successfully to acharyya.", in.readLine());
+        }
+    }
+
+    @Test
+    public void testMessageFailure() throws Exception {
+        try (Socket socket = new Socket("localhost", 4545);
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
+            // Login
+            in.readLine(); // "Enter Username:"
+            out.println("sawyer");
+            in.readLine(); // "Enter Password:"
+            out.println("password");
+            in.readLine(); // "Successfully Logged In!"
+
+            // Exit
+            out.println("4"); // Choose message option
+            out.println("acharyya");
+            assertEquals("Enter the username of the recipient:", in.readLine());
+        }
+    }
+
 }

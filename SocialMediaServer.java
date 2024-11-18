@@ -220,7 +220,7 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
 
     public static void main(String[] args) {
         ArrayList<User> users = new ArrayList<>();
-        String filename = "userDatabase.txt";
+        String filename = "userStorage.csv";
         FoundationDatabase database = new FoundationDatabase(users, filename);
         SocialMediaServer server = new SocialMediaServer(database);
         new Thread(server).start();
