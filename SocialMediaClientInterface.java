@@ -16,4 +16,6 @@ public interface SocialMediaClientInterface {
     void handleMessage();
 
     void close();
+
+    void retrieveMessages(String sender, String receiver);
 }
