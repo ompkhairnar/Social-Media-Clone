@@ -2,16 +2,37 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class SocialMediaClient implements Runnable {
+public class SocialMediaClient implements Runnable, Serializable {
     private Socket socket;
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private boolean listening = true;
+    private String sender;
+    private String receiver;
+    private String content;
 
     public SocialMediaClient(String serverAddress, int port) throws IOException {
         this.socket = new Socket(serverAddress, port);
         this.out = new ObjectOutputStream(socket.getOutputStream());
         this.in = new ObjectInputStream(socket.getInputStream());
+    }
+
+    public Message(String sender, String receiver, String content) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.content = content;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public String getContent() {
+        return content;
     }
 
     @Override
