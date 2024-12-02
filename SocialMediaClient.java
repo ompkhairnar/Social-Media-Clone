@@ -1,5 +1,7 @@
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.Scanner;
 
 /**
@@ -33,11 +35,11 @@ public class SocialMediaClient implements Runnable {
                 } catch (Exception e) {
                     System.err.println("Error in message listener: " + e.getMessage());
                     listening = false; // stop listening
-                    break; 
+                    break;
                 }
             }
         } finally {
-            close(); 
+            close();
         }
     }
 
@@ -141,7 +143,7 @@ public class SocialMediaClient implements Runnable {
             System.err.println("Error while closing client: " + e.getMessage());
         }
     }
-    
+
     public static void main(String[] args) {
         int portNumber = 4545;
         String host = "localhost";
@@ -183,7 +185,7 @@ public class SocialMediaClient implements Runnable {
                         System.out.println("Enter the username of the recipient:");
                         String recipient = sc.nextLine();
                         out.println(recipient);
-                        
+
                         System.out.println("Enter your message:");
                         String content = sc.nextLine();
                         out.println(content);
@@ -207,7 +209,7 @@ public class SocialMediaClient implements Runnable {
                         System.out.println("Enter the username of the user to block:");
                         String blockUsername = sc.nextLine();
                         out.println(blockUsername);
-                        break;    
+                        break;
                     case "6":
                         done = true;
                         System.out.println("Exiting...");
