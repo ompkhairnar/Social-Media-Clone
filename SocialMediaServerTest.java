@@ -178,8 +178,8 @@ public class SocialMediaServerTest {
             out.println("notSawyer");
             System.out.println(in.readLine()); // "Enter your message:"
             assertEquals("Enter your message:", in.readLine());
-            //out.println("bye");
-            //assertEquals("Message sent successfully to acharyya.", in.readLine());
+            out.println("bye");
+            assertEquals("Message sent successfully to notSawyer.", in.readLine());
         }
     }
 
@@ -198,8 +198,8 @@ public class SocialMediaServerTest {
 
             // Exit
             out.println("4"); // Choose message option
-            out.println("acharyya");
-            assertEquals("Enter the username of the recipient:", in.readLine());
+            out.println("bidit123");
+            assertEquals("Error: Recipient username does not exist.", in.readLine());
         }
     }
 
