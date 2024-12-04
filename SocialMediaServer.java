@@ -10,13 +10,12 @@ import java.util.ArrayList;
  * Social Media Server class that connects to a social media platform server
  * and integrates local message storage with the Message class.
  *
- * <p>
- * Purdue University -- CS18000 -- Fall 2024
- * </p>
+ * <p>Purdue University -- CS18000 -- Fall 2024</p>
  *
  * @author Sawyer, Bidit, Richard, Om
  * @version 1.0 November 17th, 2024
  */
+
 public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
     private static final int PORT = 4545;
     private ServerSocket serverSocket;
@@ -28,8 +27,7 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
         this.running = true;
     }
 
-    // Starts the server by opening a ServerSocket and waiting for client
-    // connections
+    // starts server by opening a ServerSocket and waiting for client connections
     @Override
     public void run() {
         try {
@@ -39,7 +37,7 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
         }
     }
 
-    // Starts the server and listens for incoming client connections
+    // starts server and listens for incoming client connections
     @Override
     public void startServer() throws IOException {
         serverSocket = new ServerSocket(PORT);
@@ -51,7 +49,7 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
         }
     }
 
-    // Stops the server and closes the server socket
+    // stops server and also closes server socket
     public void stopServer() {
         running = false;
         try {
@@ -63,19 +61,19 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
         }
     }
 
-    // Returns if the server is running (true if running)
+    // returns if server is running (true if running)
     public boolean isRunning() {
         return running;
     }
 
-    // Handles a client connection by starting a new ClientHandler for the given
+    // handles a client connection by starting a new ClientHandler for the given
     // socket
     @Override
     public void handleClient(Socket clientSocket) throws IOException {
         new Thread(new ClientHandler(clientSocket)).start();
     }
 
-    // Inner class that handles communication with a connected client
+    // inner class that handles communication with a connected client
     private class ClientHandler implements Runnable {
         private Socket clientSocket;
         private PrintWriter out;
@@ -85,14 +83,14 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
             this.clientSocket = socket;
         }
 
-        // Processes input from the client and sends responses
+        // proccesses input from the client and sends responses
         @Override
         public void run() {
             try {
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-                // Login process
+                // login with username and password
                 out.println("Enter Username:");
                 String username = in.readLine();
                 out.println("Enter Password:");
@@ -101,8 +99,8 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                 User user;
                 try {
                     user = new User(username, password);
-                    out.println("Successfully Logged In!"); // Send successful login to client
-                    System.out.println("User logged in: " + username); // Printed to server terminal
+                    out.println("Successfully Logged In!"); // send successful login to client
+                    System.out.println("User logged in: " + username); // printed to server terminal
                 } catch (UserException e) {
                     out.println("Login failed: " + e.getMessage());
                     return;
@@ -113,31 +111,31 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                     String choice = in.readLine();
 
                     switch (choice) {
-                        case "1": // Block User
+                        case "1": // block user
                             String blockUsername = in.readLine();
                             try {
                                 user.blockUser(blockUsername);
-                                out.println("User blocked successfully."); // Send block successful to client
+                                out.println("User blocked successfully."); // send blocked successful to client
                             } catch (UserException e) {
                                 out.println("Error: " + e.getMessage());
                             }
                             break;
 
-                        case "2": // Add User
+                        case "2": // add User
                             String addUsername = in.readLine();
                             try {
                                 user.addUser(addUsername);
-                                out.println("User added successfully."); // Send add successful to client
+                                out.println("User added successfully."); // send add successful to client
                             } catch (UserException e) {
                                 out.println("Error: " + e.getMessage());
                             }
                             break;
 
-                        case "3": // Remove Friend
+                        case "3": // remove Friend
                             String removeUsername = in.readLine();
                             try {
                                 user.removeFriend(removeUsername);
-                                out.println("Friend removed successfully."); // Send remove successful to client
+                                out.println("Friend removed successfully."); // send remove successful to client
                             } catch (UserException e) {
                                 out.println("Error: " + e.getMessage());
                             }
@@ -197,19 +195,20 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                             }
                             break;
 
-                        case "5": // Exit
-                            done = true; // Exits loop
-                            out.println("Goodbye!"); // Send goodbye to client
+                        case "5": // exit
+                            done = true; // exits loop
+                            out.println("Goodbye!"); // send goodbye to client
                             break;
 
                         default:
                             out.println("Invalid choice. Please try again.");
                     }
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                // Closing everything on finish
+                // closing everything on finish
                 try {
                     if (out != null)
                         out.close();
@@ -221,6 +220,7 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                 }
             }
         }
+
     }
 
     public static void main(String[] args) {
