@@ -1,8 +1,9 @@
 sawyer,password,testFriend1;testFriend2,testBlocked1
-notSawyer,12345,,testBlocked1:testBlocked2senderUser2,password123,[],[]
-senderUser2,password123,[],[]
-receiverUser2,password456,[],[]
-senderUser3,password123,[],[]
-receiverUser3,password456,[],[]
-senderUser4,password123,[],[]
-receiverUser4,password456,[],[]
+notSawyer,12345,,testBlocked1:testBlocked2
+testFriend1,pass,,
+bidit,password123,,
+acharyya,123pass,,hello,d,[],[]
+1234,1234,[],[]
+abcd,abcd,,
+om2,422,[],[]
+ddas,asda,[],[]
