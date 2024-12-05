@@ -67,15 +67,16 @@ public class SocialMediaGUI extends JFrame {
     }
 
     private class LoginAction implements ActionListener {
-        @Override
+
+        private User user;
         public void actionPerformed(ActionEvent e) {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
 
             try {
-                new User(username, password);
+                user = new User(username, password);
                 showSuccessDialog("Login successful!");
-                openMainScreen();
+                openMainScreen(user, false);
             } catch (UserException ex) {
                 showErrorDialog("Error: " + ex.getMessage());
             }
@@ -83,7 +84,7 @@ public class SocialMediaGUI extends JFrame {
     }
 
     private class SignUpAction implements ActionListener {
-        @Override
+        private User user;
         public void actionPerformed(ActionEvent e) {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
@@ -91,15 +92,15 @@ public class SocialMediaGUI extends JFrame {
             try {
                 new User(username, password, true);
                 showSuccessDialog("Account created successfully!");
-                openMainScreen();
+                openMainScreen(user, true);
             } catch (UserException ex) {
                 showErrorDialog("Error: " + ex.getMessage());
             }
         }
     }
 
-    private void openMainScreen() {
-        MainScreen mainScreen = new MainScreen(this);
+    private void openMainScreen(User user, boolean isNewUser) {
+        MainScreen mainScreen = new MainScreen(this, user, isNewUser);
         mainScreen.setVisible(true);
         this.setVisible(false);
     }
@@ -112,18 +113,22 @@ public class SocialMediaGUI extends JFrame {
     }
 }
 
-
 class MainScreen extends JFrame {
+    private User user;
+    private boolean isNewUser;
     private JTextArea messageArea;
     private JTextField inputField;
     private JButton sendButton;
-    private JList<String> friendList; // Sidebar for friends
-    private DefaultListModel<String> friendListModel; // Model for the JList
-    private String currentFriend = null; // Tracks which friend is selected for chatting
+    private JList<String> friendList;
+    private DefaultListModel<String> friendListModel;
+    private String currentFriend = null;
 
-    public MainScreen(SocialMediaGUI loginGUI) {
+
+    public MainScreen(SocialMediaGUI loginGUI, User user, boolean isNewUser) {
+        this.user = user;
+        this.isNewUser = isNewUser;
         setTitle("Social Media Platform");
-        setSize(800, 500);
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // Center the window
 
@@ -141,8 +146,10 @@ class MainScreen extends JFrame {
 
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(logoutButton, BorderLayout.EAST);
+
         add(topPanel, BorderLayout.NORTH);
 
+        //left sidebar
         friendListModel = new DefaultListModel<>();
         friendList = new JList<>(friendListModel);
         friendList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -153,6 +160,7 @@ class MainScreen extends JFrame {
         friendScrollPane.setPreferredSize(new Dimension(150, 0));
         add(friendScrollPane, BorderLayout.WEST);
 
+        //chat display
         messageArea = new JTextArea();
         messageArea.setEditable(false);
         messageArea.setLineWrap(true);
@@ -160,6 +168,7 @@ class MainScreen extends JFrame {
         JScrollPane messageScrollPane = new JScrollPane(messageArea);
         add(messageScrollPane, BorderLayout.CENTER);
 
+        //message input
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputField = new JTextField();
         sendButton = new JButton("Send");
@@ -170,17 +179,19 @@ class MainScreen extends JFrame {
         sendButton.addActionListener(e -> sendMessage());
         inputField.addActionListener(e -> sendButton.doClick()); // Trigger send on Enter key
 
-        //add from acc friendlist
+        if(!isNewUser) {
+            String s = user.getUserFriends();
+            String[] userFriends = s.split(";");
+            for(int i = 0; i < userFriends.length; i++) {
+                friendListModel.addElement(userFriends[i]);
+            }
+        }
 
-        friendListModel.addElement("Alice");
-        friendListModel.addElement("Bob");
-        friendListModel.addElement("Charlie");
     }
-
     private void selectFriend() {
         currentFriend = friendList.getSelectedValue();
         if (currentFriend != null) {
-            messageArea.setText("");
+            messageArea.setText(""); // Clear the chat area
             setTitle("Chat with " + currentFriend);
             // TODO: Load chat history with the selected friend from the server or local storage
         }
@@ -188,25 +199,15 @@ class MainScreen extends JFrame {
 
     private void sendMessage() {
         String message = inputField.getText().trim();
-        if (currentFriend == null) {
-            JOptionPane.showMessageDialog(this, "Please select a friend to chat with!", "Error", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
         if (!message.isEmpty()) {
             messageArea.append("You: " + message + "\n");
             inputField.setText("");
 
-            // TODO: Implement actual message sending logic with the server/client for the current friend
+            // TODO: Implement actual message sending logic with the server/client
         }
     }
 
     public void displayMessage(String sender, String message) {
         messageArea.append(sender + ": " + message + "\n");
-    }
-
-    public void addFriend(String friendName) {
-        if (!friendListModel.contains(friendName)) {
-            friendListModel.addElement(friendName);
-        }
     }
 }
