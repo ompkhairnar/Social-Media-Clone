@@ -38,11 +38,11 @@ public class Message implements MessageInterface {
 
     // Actual method where the messager messages a user. It creates a new file
     // if the file does not already exist, but if it does, it appends the file.
-    public void messageUser(User user, String message) {
+    public void messageUser(String username, String message) {
         synchronized (fileLock) { // Synchronize critical section to ensure thread safety
             try {
-                if (messager.isValidUser(user)) {
-                    String fileName = messager.getUsername() + user.getUsername() + "messages";
+                if (messager.isUserNameTaken(username)) {
+                    String fileName = messager.getUsername() + username + "messages";
                     File file = new File(fileName);
                     try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
                         writer.write(message);
@@ -65,11 +65,11 @@ public class Message implements MessageInterface {
     }
 
     // Returns the file of messages between users
-    public String getMessages(User user) {
+    public String getMessages(String username) {
         synchronized (fileLock) { // Synchronize critical section to ensure thread safety
             StringBuilder messages = new StringBuilder();
             try {
-                File file = new File(messager.getUsername() + user.getUsername() + "messages");
+                File file = new File(messager.getUsername() + username + "messages");
                 if (!file.exists()) {
                     return "No messages currently exist between users";
                 } else {
