@@ -188,12 +188,21 @@ class MainScreen extends JFrame {
         }
 
     }
-    private void selectFriend() {
-        currentFriend = friendList.getSelectedValue();
-        if (currentFriend != null) {
-            messageArea.setText(""); // Clear the chat area
-            setTitle("Chat with " + currentFriend);
-            // TODO: Load chat history with the selected friend from the server or local storage
+    private void selectFriend()  {
+        try {
+            currentFriend = friendList.getSelectedValue();
+            Message messager = new Message(user);
+            if (currentFriend != null) {
+                messageArea.setText(""); // Clear the chat area
+                setTitle("Chat with " + currentFriend);
+                // TODO: Load chat history with the selected friend from the server or local storage
+                String s = messager.getMessages(currentFriend);
+                String[] messages = s.split("\n");
+
+
+            }
+        } catch (UserException ex) {
+            ex.printStackTrace();
         }
     }
 
