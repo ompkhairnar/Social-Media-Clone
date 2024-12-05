@@ -1,9 +1,10 @@
-sawyer,password,testFriend1;testFriend2,testBlocked1
-notSawyer,12345,,testBlocked1:testBlocked2
-testFriend1,pass,,
+sawyer,password,testFriend1;testFriend2;notSawyer,testBlocked1
+notSawyer,12345,sawyer,testBlocked1:testBlocked2
+testFriend1,pass,sawyer,notSawyer
 bidit,password123,,
 acharyya,123pass,,hello,d,[],[]
 1234,1234,[],[]
 abcd,abcd,,
 om2,422,[],[]
 ddas,asda,[],[]
+ab,abcd,[],[]

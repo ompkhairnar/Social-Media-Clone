@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
+import java.net.*;
 
 public class SocialMediaGUI extends JFrame {
     private JTextField usernameField;
@@ -73,6 +75,7 @@ public class SocialMediaGUI extends JFrame {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
 
+
             try {
                 user = new User(username, password);
                 showSuccessDialog("Login successful!");
@@ -114,6 +117,7 @@ public class SocialMediaGUI extends JFrame {
 }
 
 class MainScreen extends JFrame {
+
     private User user;
     private boolean isNewUser;
     private JTextArea messageArea;
@@ -198,6 +202,9 @@ class MainScreen extends JFrame {
                 // TODO: Load chat history with the selected friend from the server or local storage
                 String s = messager.getMessages(currentFriend);
                 String[] messages = s.split("\n");
+                for(int i = 0; i < messages.length; i++) {
+                    messageArea.append(messages[i] + "\n");
+                }
 
 
             }
@@ -208,13 +215,31 @@ class MainScreen extends JFrame {
 
     private void sendMessage() {
         String message = inputField.getText().trim();
-        if (!message.isEmpty()) {
-            messageArea.append("You: " + message + "\n");
-            inputField.setText("");
+        if (!message.isEmpty() && currentFriend != null) {
+            try (Socket socket = new Socket("localhost", 4545);
+                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+                out.println("4");
+                out.println(currentFriend);
+                out.println(message);
 
-            // TODO: Implement actual message sending logic with the server/client
+                messageArea.append("You: " + message + "\n");
+
+                inputField.setText("");
+
+
+
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Error sending message: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
         }
     }
+
 
     public void displayMessage(String sender, String message) {
         messageArea.append(sender + ": " + message + "\n");

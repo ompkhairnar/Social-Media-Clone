@@ -141,57 +141,22 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
 
                         case "4": // Message a user
                             try {
-                                // Prompt for the recipient's username
-                                out.println("Enter the username of the recipient:");
-                                String recipientUsername = in.readLine();
+                                String recipient = in.readLine(); // Read recipient username
+                                String messageContent = in.readLine(); // Read message content
 
-                                // Check if the recipient exists in the FoundationDatabase
-                                User recipient = null;
-                                synchronized (database.getUsers()) {
-                                    for (User u : database.getUsers()) {
-                                        if (u.getUsername().equalsIgnoreCase(recipientUsername)) {
-                                            recipient = u;
-                                            break;
-                                        }
-                                    }
-                                }
+                                // Example of handling message storage or broadcasting
+                                Message message = new Message(user); // Assuming `Message` handles storage
+                                message.messageUser(recipient, messageContent);
 
-                                if (recipient == null) {
-                                    out.println("Error: Recipient username does not exist.");
-                                    break;
-                                }
-
-                                // Check for blocking conditions
-                                if (user.getUserBlocked().contains(recipientUsername)) {
-                                    out.println("Error: You cannot message a user you have blocked.");
-                                    break;
-                                }
-
-                                if (recipient.getUserBlocked().contains(user.getUsername())) {
-                                    out.println("Error: You have been blocked by this user.");
-                                    break;
-                                }
-
-                                // Prompt for the message content
-                                out.println("Enter your message:");
-                                String messageContent = in.readLine();
-
-                                // Use the Message class to append the message to the file
-                                try {
-                                    Message message = new Message(user);
-                                    message.messageUser(recipient.getUsername(), messageContent);
-
-                                    out.println("Message sent successfully to " + recipient.getUsername() + ".");
-                                    System.out.println("Message from " + user.getUsername() + " to "
-                                            + recipient.getUsername() + ": " + messageContent);
-                                } catch (UserException e) {
-                                    out.println("Error: " + e.getMessage());
-                                }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                out.println("An error occurred while processing your request.");
+                                out.println("Message sent successfully to " + recipient);
+                                System.out.println("Message sent to " + recipient);
+                                System.out.println("Message from " + user.getUsername() + " to "
+                                        + recipient + ": " + messageContent);
+                            } catch (UserException e) {
+                                out.println("Error: " + e.getMessage());
                             }
                             break;
+
 
                         case "5": // Exit
                             done = true; // Exits loop
