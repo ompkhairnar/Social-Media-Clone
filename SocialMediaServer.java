@@ -179,7 +179,7 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                                 // Use the Message class to append the message to the file
                                 try {
                                     Message message = new Message(user);
-                                    message.messageUser(recipient, messageContent);
+                                    message.messageUser(recipient.getUsername(), messageContent);
 
                                     out.println("Message sent successfully to " + recipient.getUsername() + ".");
                                     System.out.println("Message from " + user.getUsername() + " to "
