@@ -1,5 +1,9 @@
 sawyer,password,testFriend1;testFriend2,testBlocked1
-notSawyer,12345,,testBlocked1:testBlocked2
+notSawyer,12345,,testBlocked1:dtestBlocked2
 testFriend1,pass,,
 bidit,password123,,
-acharyya,123pass,,
+acharyya,123pass,,validUser,password123,,
+validUser,password123,,
+bob,password,,
+om,password,,
+,,,
