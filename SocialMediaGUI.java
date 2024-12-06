@@ -77,13 +77,12 @@ public class SocialMediaGUI extends JFrame {
         public void actionPerformed(ActionEvent e) {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
-            loggedInUsername = username;
-            loggedInPass = password;
             try {
                 user = new User(username, password);
-               // loggedInUsername = username;
-                System.out.println(loggedInUsername);
-                //loggedInPass = password;
+                SocialMediaGUI.this.loggedInUsername = username;
+                System.out.println(SocialMediaGUI.this.loggedInUsername);
+                System.out.println("Instance in LoginAction: " + SocialMediaGUI.this);
+                SocialMediaGUI.this.loggedInPass = password;
                 showSuccessDialog("Login successful!");
                 openMainScreen(user, false);
             } catch (UserException ex) {
@@ -115,8 +114,9 @@ public class SocialMediaGUI extends JFrame {
     }
 
     public String getUsername() {
-        System.out.println(loggedInUsername);
-        return loggedInUsername;
+        System.out.println(this.loggedInUsername);
+        System.out.println("Instance in getUsername: " + this);
+        return this.loggedInUsername;
     }
 
     public String getPassword() {
