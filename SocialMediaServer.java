@@ -76,6 +76,7 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
         private Socket clientSocket;
         private PrintWriter out;
         private BufferedReader in;
+        private User currentUser;
 
         public ClientHandler(Socket socket) {
             this.clientSocket = socket;
@@ -88,98 +89,222 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-                // Login process
-                out.println("Enter Username:");
-                String username = in.readLine();
-                out.println("Enter Password:");
-                String password = in.readLine();
-
-                User user;
-                try {
-                    user = new User(username, password);
-                    out.println("Successfully Logged In!"); // Send successful login to client
-                    System.out.println("User logged in: " + username); // Printed to server terminal
-                } catch (UserException e) {
-                    out.println("Login failed: " + e.getMessage());
-                    return;
-                }
-
                 boolean done = false;
                 while (!done) {
-                    String choice = in.readLine();
+                    String command = in.readLine(); // Read command from client
+                    if (command == null) {
+                        done = true; // Exit if client disconnects
+                        break;
+                    }
 
-                    switch (choice) {
-                        case "1": // Block User
-                            String blockUsername = in.readLine();
-                            try {
-                                user.blockUser(blockUsername);
-                                out.println("User blocked successfully."); // Send block successful to client
-                            } catch (UserException e) {
-                                out.println("Error: " + e.getMessage());
-                            }
+                    switch (command.toUpperCase()) {
+                        case "LOGIN":
+                            handleLogin();
                             break;
 
-                        case "2": // Add User
-                            String addUsername = in.readLine();
-                            try {
-                                user.addUser(addUsername);
-                                out.println("User added successfully."); // Send add successful to client
-                            } catch (UserException e) {
-                                out.println("Error: " + e.getMessage());
-                            }
+                        case "SIGNUP":
+                            handleSignup();
+                            break;
+
+                        case "1": // Block User
+                            handleBlockUser();
+                            break;
+
+                        case "2": // Add Friend
+                            handleAddFriend();
                             break;
 
                         case "3": // Remove Friend
-                            String removeUsername = in.readLine();
-                            try {
-                                user.removeFriend(removeUsername);
-                                out.println("Friend removed successfully."); // Send remove successful to client
-                            } catch (UserException e) {
-                                out.println("Error: " + e.getMessage());
-                            }
+                            handleRemoveFriend();
                             break;
 
-                        case "4": // Message a user
-                            try {
-                                String recipient = in.readLine(); // Read recipient username
-                                String messageContent = in.readLine(); // Read message content
-
-                                // Example of handling message storage or broadcasting
-                                Message message = new Message(user); // Assuming `Message` handles storage
-                                message.messageUser(recipient, messageContent);
-
-                                out.println("Message sent successfully to " + recipient);
-                                System.out.println("Message sent to " + recipient);
-                                System.out.println("Message from " + user.getUsername() + " to "
-                                        + recipient + ": " + messageContent);
-                            } catch (UserException e) {
-                                out.println("Error: " + e.getMessage());
-                            }
+                        case "4": // Send Message
+                            handleSendMessage();
                             break;
 
-
-                        case "5": // Exit
-                            done = true; // Exits loop
-                            out.println("Goodbye!"); // Send goodbye to client
+                        case "EXIT":
+                            done = true;
+                            out.println("Goodbye!");
                             break;
 
                         default:
-                            out.println("Invalid choice. Please try again.");
+                            out.println("Invalid command.");
                     }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                // Closing everything on finish
                 try {
-                    if (out != null)
-                        out.close();
-                    if (in != null)
-                        in.close();
-                    clientSocket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    if (in != null) in.close();
+                    if (out != null) out.close();
+                    if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
+            }
+        }
+
+        private void handleBlockUser() {
+            try {
+                out.println("Enter username to block:");
+                String blockUsername = in.readLine();
+                if (blockUsername == null || blockUsername.isBlank()) {
+                    out.println("Error: Username cannot be empty.");
+                    return;
+                }
+        
+                synchronized (database) {
+                    try {
+                        User currentUser = database.getUser(this.currentUser.getUsername()); // Fetch current user
+                        currentUser.blockUser(blockUsername); // Block the user
+                        out.println("User blocked successfully.");
+                    } catch (UserException e) {
+                        out.println("Error: " + e.getMessage());
+                    }
+                }
+            } catch (IOException e) {
+                out.println("Error: An error occurred while blocking user.");
+                e.printStackTrace();
+            }
+        }
+
+        private void handleAddFriend() {
+            try {
+                out.println("Enter username to add as a friend:");
+                String friendUsername = in.readLine(); // Get the username of the friend to add
+                if (friendUsername == null || friendUsername.isBlank()) {
+                    out.println("Error: Username cannot be empty.");
+                    return;
+                }
+        
+                synchronized (database) { // Ensure thread-safe access to the database
+                    try {
+                        User currentUser = database.getUser(this.currentUser.getUsername()); // Get logged-in user
+                        User friendUser = database.getUser(friendUsername); // Verify the friend exists
+        
+                        currentUser.addUser(friendUsername); // Add the friend by username
+                        out.println("Friend added successfully.");
+                        System.out.println(currentUser.getUsername() + " added " + friendUsername + " as a friend.");
+                    } catch (UserException e) {
+                        out.println("Error: " + e.getMessage());
+                    }
+                }
+            } catch (IOException e) {
+                out.println("Error: An error occurred while adding friend.");
+                e.printStackTrace();
+            }
+        }
+        
+
+        private void handleRemoveFriend() {
+            try {
+                out.println("Enter username to remove as a friend:");
+                String friendUsername = in.readLine(); // Get the username of the friend to remove
+                if (friendUsername == null || friendUsername.isBlank()) {
+                    out.println("Error: Username cannot be empty.");
+                    return;
+                }
+        
+                synchronized (database) { // Ensure thread-safe access to the database
+                    try {
+                        User currentUser = database.getUser(this.currentUser.getUsername()); // Get logged-in user
+                        currentUser.removeFriend(friendUsername); // Remove the friend by username
+        
+                        out.println("Friend removed successfully.");
+                        System.out.println(currentUser.getUsername() + " removed " + friendUsername + " from their friends.");
+                    } catch (UserException e) {
+                        out.println("Error: " + e.getMessage());
+                    }
+                }
+            } catch (IOException e) {
+                out.println("Error: An error occurred while removing friend.");
+                e.printStackTrace();
+            }
+        }
+        
+
+        private void handleSendMessage() {
+            try {
+                out.println("Enter the username of the recipient:");
+                String recipient = in.readLine();
+                out.println("Enter your message:");
+                String messageContent = in.readLine();
+        
+                if (recipient == null || recipient.isBlank() || messageContent == null || messageContent.isBlank()) {
+                    out.println("Error: Recipient and message cannot be empty.");
+                    return;
+                }
+        
+                synchronized (database) {
+                    try {
+                        Message message = new Message(currentUser); // Assuming currentUser is tracked
+                        message.messageUser(recipient, messageContent);
+                        out.println("Message sent successfully to " + recipient + ".");
+                    } catch (UserException e) {
+                        out.println("Error: " + e.getMessage());
+                    }
+                }
+            } catch (IOException e) {
+                out.println("Error: An error occurred while sending message.");
+                e.printStackTrace();
+            }
+        }
+
+        private void handleLogin() {
+            try {
+                out.println("Enter Username:");
+                String username = in.readLine();
+                out.println("Enter Password:");
+                String password = in.readLine();
+        
+                synchronized (database) {
+                    try {
+                        currentUser = database.getUser(username); // Fetch user from the database
+                        if (currentUser.getUserPassword().equals(password)) {
+                            out.println("Successfully Logged In!");
+                            System.out.println("User logged in: " + username);
+                        } else {
+                            out.println("Login failed: Invalid password.");
+                        }
+                    } catch (UserException e) {
+                        out.println("Login failed: " + e.getMessage());
+                    }
+                }
+            } catch (IOException e) {
+                out.println("Login failed: An error occurred.");
+                e.printStackTrace();
+            }
+        }
+
+        private void handleSignup() {
+            try {
+                out.println("Enter Username:");
+                String username = in.readLine();
+                if (username == null || username.isBlank()) {
+                    out.println("Sign up failed: Username cannot be empty.");
+                    return;
+                }
+        
+                out.println("Enter Password:");
+                String password = in.readLine();
+                if (password == null || password.isBlank()) {
+                    out.println("Sign up failed: Password cannot be empty.");
+                    return;
+                }
+        
+                synchronized (database) {
+                    try {
+                        database.createUser(username, password); // Create a new user in the database
+                        out.println("Account created successfully!");
+                        System.out.println("New user signed up: " + username);
+                    } catch (Exception e) {
+                        out.println("Sign up failed: " + e.getMessage());
+                        System.err.println("Sign up failed for username: " + username + " - " + e.getMessage());
+                    }
+                }
+            } catch (IOException e) {
+                out.println("Sign up failed: An error occurred while processing the request.");
+                e.printStackTrace();
             }
         }
     }
