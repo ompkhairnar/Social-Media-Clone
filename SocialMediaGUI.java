@@ -2,8 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
-import java.net.*;
 
 public class SocialMediaGUI extends JFrame {
     private JTextField usernameField;
@@ -87,7 +85,6 @@ public class SocialMediaGUI extends JFrame {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
 
-
             try {
                 out.println("LOGIN");
                 out.println(username);
@@ -144,7 +141,6 @@ public class SocialMediaGUI extends JFrame {
 }
 
 class MainScreen extends JFrame {
-
     private User user;
     private boolean isNewUser;
     private JTextArea messageArea;
@@ -232,9 +228,6 @@ class MainScreen extends JFrame {
                 // TODO: Load chat history with the selected friend from the server or local storage
                 String s = messager.getMessages(currentFriend);
                 String[] messages = s.split("\n");
-                for(int i = 0; i < messages.length; i++) {
-                    messageArea.append(messages[i] + "\n");
-                }
 
 
             }
@@ -253,6 +246,7 @@ class MainScreen extends JFrame {
 
     private void sendMessage() {
         String message = inputField.getText().trim();
+<<<<<<< HEAD
         if (!message.isEmpty() && currentFriend != null) {
             try {
                 out.println("4");
@@ -273,9 +267,15 @@ class MainScreen extends JFrame {
             } catch (IOException ex) {
                 showErrorDialog("Error sending message " + ex.getMessage());
             }
+=======
+        if (!message.isEmpty()) {
+            messageArea.append("You: " + message + "\n");
+            inputField.setText("");
+
+            // TODO: Implement actual message sending logic with the server/client
+>>>>>>> parent of 96acdac (updated all of gui to have messaging features but still need to figure out server connection)
         }
     }
-
 
     public void displayMessage(String sender, String message) {
         messageArea.append(sender + ": " + message + "\n");
