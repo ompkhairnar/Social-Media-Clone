@@ -2,22 +2,22 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.nio.file.FileSystemAlreadyExistsException;
 
 public class SocialMediaGUI extends JFrame {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
     private JButton signUpButton;
-    private Socket socket;
-    private PrintWriter out;
-    private BufferedReader in;
+    private String loggedInUsername;
+    private String loggedInPass;
+
 
     public SocialMediaGUI() {
         setTitle("Social Media Login");
         setSize(400, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-
         initializeComponents();
         connectToServer();
     }
@@ -30,6 +30,9 @@ public class SocialMediaGUI extends JFrame {
         } catch (IOException e) {
             showErrorDialog("Could not connect to the server. Please try again later.");
         }
+    }
+    public SocialMediaGUI(String nothing) {
+
     }
 
     private void initializeComponents() {
@@ -84,22 +87,18 @@ public class SocialMediaGUI extends JFrame {
         public void actionPerformed(ActionEvent e) {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
-
+            loggedInUsername = username;
+            loggedInPass = password;
             try {
-                out.println("LOGIN");
-                out.println(username);
-                out.println(password);
-                
-                String response = in.readLine(); 
-                if ("Successfully Logged In!".equals(response)) {
-                    showSuccessDialog("Login successful!");
-                    openMainScreen(new User(username, password), false);
-                } else {
-                    showErrorDialog("Login failed: " + response);
-                }
-            } catch (IOException | UserException ex) {
-                showErrorDialog("Connection error: Could not log in.");
-            } 
+                user = new User(username, password);
+               // loggedInUsername = username;
+                System.out.println(loggedInUsername);
+                //loggedInPass = password;
+                showSuccessDialog("Login successful!");
+                openMainScreen(user, false);
+            } catch (UserException ex) {
+                showErrorDialog("Error: " + ex.getMessage());
+            }
         }
     }
 
@@ -132,6 +131,15 @@ public class SocialMediaGUI extends JFrame {
         this.setVisible(false);
     }
 
+    public String getUsername() {
+        System.out.println(loggedInUsername);
+        return loggedInUsername;
+    }
+
+    public String getPassword() {
+        return loggedInPass;
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             SocialMediaGUI gui = new SocialMediaGUI();
@@ -149,9 +157,7 @@ class MainScreen extends JFrame {
     private JList<String> friendList;
     private DefaultListModel<String> friendListModel;
     private String currentFriend = null;
-    // private Socket socket;
-    private PrintWriter out;
-    private BufferedReader in;
+    private SocialMediaClient client;
 
 
     public MainScreen(SocialMediaGUI loginGUI, User user, boolean isNewUser) {
@@ -173,11 +179,21 @@ class MainScreen extends JFrame {
             loginGUI.setVisible(true);
             this.dispose();
         });
-
+        JTextField searchBar = new JTextField(20);
+        JButton searchButton = new JButton("Search");
+        searchButton.addActionListener(e -> {
+            //System.out.println("Size");
+            System.out.println(search(searchBar.getText()));
+        });
         JPanel topPanel = new JPanel(new BorderLayout());
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        searchPanel.add(searchBar, BorderLayout.WEST);
+        searchPanel.add(searchButton, BorderLayout.LINE_END);
         topPanel.add(logoutButton, BorderLayout.EAST);
-
+        topPanel.add(searchPanel, BorderLayout.WEST);
         add(topPanel, BorderLayout.NORTH);
+
+        client = new SocialMediaClient();
 
         //left sidebar
         friendListModel = new DefaultListModel<>();
@@ -246,8 +262,6 @@ class MainScreen extends JFrame {
 
     private void sendMessage() {
         String message = inputField.getText().trim();
-<<<<<<< HEAD
-<<<<<<< HEAD
         if (!message.isEmpty() && currentFriend != null) {
             try {
                 out.println("4");
@@ -268,22 +282,25 @@ class MainScreen extends JFrame {
             } catch (IOException ex) {
                 showErrorDialog("Error sending message " + ex.getMessage());
             }
-=======
-=======
->>>>>>> parent of 96acdac (updated all of gui to have messaging features but still need to figure out server connection)
         if (!message.isEmpty()) {
             messageArea.append("You: " + message + "\n");
             inputField.setText("");
 
             // TODO: Implement actual message sending logic with the server/client
-<<<<<<< HEAD
->>>>>>> parent of 96acdac (updated all of gui to have messaging features but still need to figure out server connection)
-=======
->>>>>>> parent of 96acdac (updated all of gui to have messaging features but still need to figure out server connection)
         }
     }
 
     public void displayMessage(String sender, String message) {
         messageArea.append(sender + ": " + message + "\n");
+    }
+
+    public String search (String searched) {
+        String result = "1";
+        System.out.println("Before: " + result);
+        if (!searched.isEmpty()) {
+            result = client.client("6", searched);
+        }
+        System.out.println("After: " + result);
+        return result;
     }
 }

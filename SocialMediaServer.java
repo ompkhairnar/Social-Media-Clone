@@ -89,48 +89,62 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-                boolean done = false;
-                while (!done) {
-                    String command = in.readLine(); // Read command from client
-                    if (command == null) {
-                        done = true; // Exit if client disconnects
-                        break;
-                    }
+                // Login process
+                //out.println("Enter Username:");
+                String username = in.readLine();
+                System.out.println(username);
+                //out.println("Enter Password:");
+                String password = in.readLine();
 
-                    switch (command.toUpperCase()) {
-                        case "LOGIN":
-                            handleLogin();
-                            break;
+                User user;
+                try {
+                    user = new User(username, password);
+                    out.println("Successfully Logged In!"); // Send successful login to client
+                    System.out.println("User logged in: " + username); // Printed to server terminal
+                } catch (UserException e) {
+                    out.println("Login failed: " + e.getMessage());
+                    return;
+                }
 
-                        case "SIGNUP":
-                            handleSignup();
-                            break;
-
+                //boolean done = false;
+                //while (!done) {
+                    String choice = in.readLine();
+                    System.out.println(choice);
+                    switch (choice) {
                         case "1": // Block User
-                            handleBlockUser();
+                            String blockUsername = in.readLine();
+                            try {
+                                user.blockUser(blockUsername);
+                                out.println("Success"); // Send block successful to client
+                            } catch (UserException e) {
+                                out.println("Error: " + e.getMessage());
+                            }
                             break;
 
-                        case "2": // Add Friend
-                            handleAddFriend();
+                        case "2": // Add User
+                            String addUsername = in.readLine();
+                            try {
+                                user.addUser(addUsername);
+                                out.println("Success"); // Send add successful to client
+                            } catch (UserException e) {
+                                out.println("Error: " + e.getMessage());
+                            }
                             break;
 
                         case "3": // Remove Friend
-                            handleRemoveFriend();
+                            String removeUsername = in.readLine();
+                            try {
+                                user.removeFriend(removeUsername);
+                                out.println("Success"); // Send remove successful to client
+                            } catch (UserException e) {
+                                out.println("Error: " + e.getMessage());
+                            }
                             break;
 
-<<<<<<< HEAD
-                        case "4": // Send Message
-                            handleSendMessage();
-                            break;
-
-                        case "EXIT":
-                            done = true;
-                            out.println("Goodbye!");
-=======
                         case "4": // Message a user
                             try {
                                 // Prompt for the recipient's username
-                                out.println("Enter the username of the recipient:");
+                                //out.println("Enter the username of the recipient:");
                                 String recipientUsername = in.readLine();
 
                                 // Check if the recipient exists in the FoundationDatabase
@@ -169,7 +183,8 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                                     Message message = new Message(user);
                                     message.messageUser(recipient.getUsername(), messageContent);
 
-                                    out.println("Message sent successfully to " + recipient.getUsername() + ".");
+                                    //out.println("Message sent successfully to " + recipient.getUsername() + ".");
+                                    out.println("Success");
                                     System.out.println("Message from " + user.getUsername() + " to "
                                             + recipient.getUsername() + ": " + messageContent);
                                 } catch (UserException e) {
@@ -180,17 +195,37 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                                 out.println("An error occurred while processing your request.");
                             }
                             break;
-
-                        case "5": // Exit
-                            done = true; // Exits loop
+                        
+                        case "5":
+                            String messagerUser = in.readLine();
+                            String userMessaged = in.readLine();
+                            try {
+                                User messager = new User(messagerUser);
+                                Message msg = new Message(messager);
+                                String messages = msg.getMessages(userMessaged);
+                                out.println(messages);
+                            } catch (UserException e) {
+                                out.println("Error retrieving messages");
+                            }
+                        case "6": //Search
+                            String searchedUsername = in.readLine();
+                            System.out.println(searchedUsername);
+                            boolean search = database.search(searchedUsername);
+                            if (search) {
+                                //database.getUsers();
+                                out.println(searchedUsername);
+                            } else {
+                                out.println("User does not exist.");
+                            }
+                        case "7": // Exit
+                            //done = true; // Exits loop
                             out.println("Goodbye!"); // Send goodbye to client
->>>>>>> parent of 96acdac (updated all of gui to have messaging features but still need to figure out server connection)
                             break;
 
                         default:
                             out.println("Invalid command.");
                     }
-                }
+                //}
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
