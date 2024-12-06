@@ -1,8 +1,7 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.nio.file.FileSystemAlreadyExistsException;
+import javax.swing.*;
 
 public class SocialMediaGUI extends JFrame {
     private JTextField usernameField;
@@ -218,22 +217,50 @@ class MainScreen extends JFrame {
 
     }
     private void selectFriend() {
-        currentFriend = friendList.getSelectedValue();
-        if (currentFriend != null) {
-            messageArea.setText(""); // Clear the chat area
+        try {
+            String selectedValue = friendList.getSelectedValue(); // Get the current selection
+            if (selectedValue == null || selectedValue.equals(currentFriend)) {
+                // Ignore if no selection or the same friend is selected
+                return;
+            }
+            currentFriend = selectedValue; // Update the current friend
+            System.out.println("Current Friend: " + currentFriend);
+    
+            Message messager = new Message(user);
+            messageArea.setText(""); 
             setTitle("Chat with " + currentFriend);
-            // TODO: Load chat history with the selected friend from the server or local storage
+            String messages = messager.getMessages(currentFriend);
+            String[] messagesArray = messages.split("\n");
+            
+            for (String msg : messagesArray) {
+                messageArea.append(msg + "\n");
+            }
+        } catch (UserException ex) {
+            ex.printStackTrace();
         }
     }
+    
 
-    private void sendMessage() {
-        String message = inputField.getText().trim();
-        if (!message.isEmpty()) {
-            messageArea.append("You: " + message + "\n");
-            inputField.setText("");
+    private void sendMessage()  {
+        System.out.println("sending message"); 
+        
+        try {
+            
+            String message = inputField.getText().trim();
+            Message mes = new Message(user);
+            if (!message.isEmpty()) {
+                messageArea.append("You: " + message + "\n");
+                inputField.setText("");
+                System.out.println("Sending message to: " + currentFriend);
+                System.out.println("Message content: " + message);
+                mes.messageUser(currentFriend, (user.getUsername() + ": " + message));
+              
 
-            // TODO: Implement actual message sending logic with the server/client
+            }
+            
+        } catch (UserException e) {
         }
+        
     }
 
     public void displayMessage(String sender, String message) {
