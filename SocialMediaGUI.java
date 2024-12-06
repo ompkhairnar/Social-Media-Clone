@@ -10,6 +10,9 @@ public class SocialMediaGUI extends JFrame {
     private JPasswordField passwordField;
     private JButton loginButton;
     private JButton signUpButton;
+    private Socket socket;
+    private PrintWriter out;
+    private BufferedReader in;
 
     public SocialMediaGUI() {
         setTitle("Social Media Login");
@@ -18,6 +21,17 @@ public class SocialMediaGUI extends JFrame {
         setLocationRelativeTo(null);
 
         initializeComponents();
+        connectToServer();
+    }
+
+    private void connectToServer() {
+        try {
+            socket = new Socket("localhost", 4545); 
+            out = new PrintWriter(socket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        } catch (IOException e) {
+            showErrorDialog("Could not connect to the server. Please try again later.");
+        }
     }
 
     private void initializeComponents() {
@@ -69,35 +83,48 @@ public class SocialMediaGUI extends JFrame {
     }
 
     private class LoginAction implements ActionListener {
-
-        private User user;
         public void actionPerformed(ActionEvent e) {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
 
 
             try {
-                user = new User(username, password);
-                showSuccessDialog("Login successful!");
-                openMainScreen(user, false);
-            } catch (UserException ex) {
-                showErrorDialog("Error: " + ex.getMessage());
-            }
+                out.println("LOGIN");
+                out.println(username);
+                out.println(password);
+                
+                String response = in.readLine(); 
+                if ("Successfully Logged In!".equals(response)) {
+                    showSuccessDialog("Login successful!");
+                    openMainScreen(new User(username, password), false);
+                } else {
+                    showErrorDialog("Login failed: " + response);
+                }
+            } catch (IOException | UserException ex) {
+                showErrorDialog("Connection error: Could not log in.");
+            } 
         }
     }
 
     private class SignUpAction implements ActionListener {
-        private User user;
         public void actionPerformed(ActionEvent e) {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
 
             try {
-                new User(username, password, true);
-                showSuccessDialog("Account created successfully!");
-                openMainScreen(user, true);
-            } catch (UserException ex) {
-                showErrorDialog("Error: " + ex.getMessage());
+                out.println("SIGNUP");
+                out.println(username);
+                out.println(password);
+            
+                String response = in.readLine();
+                if ("Account created successfully!".equals(response)) {
+                    showSuccessDialog("Account created successfully!");
+                    openMainScreen(new User(username, password), true);
+                } else {
+                    showErrorDialog("Sign up failed: " + response);
+                }
+            } catch (IOException | UserException ex) {
+                showErrorDialog("Connection error: Could not sign up.");
             }
         }
     }
@@ -126,6 +153,9 @@ class MainScreen extends JFrame {
     private JList<String> friendList;
     private DefaultListModel<String> friendListModel;
     private String currentFriend = null;
+    // private Socket socket;
+    private PrintWriter out;
+    private BufferedReader in;
 
 
     public MainScreen(SocialMediaGUI loginGUI, User user, boolean isNewUser) {
@@ -213,29 +243,35 @@ class MainScreen extends JFrame {
         }
     }
 
+    private void showErrorDialog(String errorMessage) {
+        JOptionPane.showMessageDialog(
+                this,
+                errorMessage,
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+    }
+
     private void sendMessage() {
         String message = inputField.getText().trim();
         if (!message.isEmpty() && currentFriend != null) {
-            try (Socket socket = new Socket("localhost", 4545);
-                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            try {
                 out.println("4");
                 out.println(currentFriend);
                 out.println(message);
-
-                messageArea.append("You: " + message + "\n");
-
-                inputField.setText("");
+                
+                String response = in.readLine();
+                if (response.startsWith("Message sent")) {
+                    messageArea.append("You: " + message + "\n");
+                    inputField.setText("");
+                }
+                else {
+                    showErrorDialog(response);
+                }
 
 
 
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Error sending message: " + ex.getMessage(),
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                showErrorDialog("Error sending message " + ex.getMessage());
             }
         }
     }
