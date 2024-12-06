@@ -44,22 +44,20 @@ public class FoundationDatabase implements FoundationDatabaseInterface {
                     ArrayList<String> friendList = new ArrayList<>();
                     ArrayList<String> blockedList = new ArrayList<>();
     
-                    // Parse friends and blocked lists
                     if (!friends.isEmpty()) {
                         friendList = new ArrayList<>(List.of(friends.split(";")));
                     }
                     if (!blocked.isEmpty()) {
                         blockedList = new ArrayList<>(List.of(blocked.split(";")));
                     }
-    
-                    // Create a new user (update constructor logic if necessary)
+                    
                     synchronized (users) {
-                        User user = new User(username, password); // Assuming no validation for friends/blocked
+                        User user = new User(username, password); 
                         for (String friend : friendList) {
-                            user.addUser(friend); // Add friends if any
+                            user.addUser(friend); 
                         }
                         for (String block : blockedList) {
-                            user.blockUser(block); // Add blocked users if any
+                            user.blockUser(block); 
                         }
                         users.add(user);
                     }
@@ -74,10 +72,10 @@ public class FoundationDatabase implements FoundationDatabaseInterface {
         } catch (IOException e) {
             System.err.println("Error reading file: " + file);
             e.printStackTrace();
-            return false; // Return false to indicate file reading failure
+            return false; 
         }
         System.out.println("Loaded users: " + users.size()); // Debugging
-        return true; // Return true if reading completed without critical failures
+        return true; 
     }
     
     
