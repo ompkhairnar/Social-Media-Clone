@@ -89,9 +89,10 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                 in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
                 // Login process
-                out.println("Enter Username:");
+                //out.println("Enter Username:");
                 String username = in.readLine();
-                out.println("Enter Password:");
+                System.out.println(username);
+                //out.println("Enter Password:");
                 String password = in.readLine();
 
                 User user;
@@ -104,16 +105,16 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                     return;
                 }
 
-                boolean done = false;
-                while (!done) {
+                //boolean done = false;
+                //while (!done) {
                     String choice = in.readLine();
-
+                    System.out.println(choice);
                     switch (choice) {
                         case "1": // Block User
                             String blockUsername = in.readLine();
                             try {
                                 user.blockUser(blockUsername);
-                                out.println("User blocked successfully."); // Send block successful to client
+                                out.println("Success"); // Send block successful to client
                             } catch (UserException e) {
                                 out.println("Error: " + e.getMessage());
                             }
@@ -123,7 +124,7 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                             String addUsername = in.readLine();
                             try {
                                 user.addUser(addUsername);
-                                out.println("User added successfully."); // Send add successful to client
+                                out.println("Success"); // Send add successful to client
                             } catch (UserException e) {
                                 out.println("Error: " + e.getMessage());
                             }
@@ -133,7 +134,7 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                             String removeUsername = in.readLine();
                             try {
                                 user.removeFriend(removeUsername);
-                                out.println("Friend removed successfully."); // Send remove successful to client
+                                out.println("Success"); // Send remove successful to client
                             } catch (UserException e) {
                                 out.println("Error: " + e.getMessage());
                             }
@@ -142,7 +143,7 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                         case "4": // Message a user
                             try {
                                 // Prompt for the recipient's username
-                                out.println("Enter the username of the recipient:");
+                                //out.println("Enter the username of the recipient:");
                                 String recipientUsername = in.readLine();
 
                                 // Check if the recipient exists in the FoundationDatabase
@@ -181,7 +182,8 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                                     Message message = new Message(user);
                                     message.messageUser(recipient.getUsername(), messageContent);
 
-                                    out.println("Message sent successfully to " + recipient.getUsername() + ".");
+                                    //out.println("Message sent successfully to " + recipient.getUsername() + ".");
+                                    out.println("Success");
                                     System.out.println("Message from " + user.getUsername() + " to "
                                             + recipient.getUsername() + ": " + messageContent);
                                 } catch (UserException e) {
@@ -192,16 +194,37 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                                 out.println("An error occurred while processing your request.");
                             }
                             break;
-
-                        case "5": // Exit
-                            done = true; // Exits loop
+                        
+                        case "5":
+                            String messagerUser = in.readLine();
+                            String userMessaged = in.readLine();
+                            try {
+                                User messager = new User(messagerUser);
+                                Message msg = new Message(messager);
+                                String messages = msg.getMessages(userMessaged);
+                                out.println(messages);
+                            } catch (UserException e) {
+                                out.println("Error retrieving messages");
+                            }
+                        case "6": //Search
+                            String searchedUsername = in.readLine();
+                            System.out.println(searchedUsername);
+                            boolean search = database.search(searchedUsername);
+                            if (search) {
+                                //database.getUsers();
+                                out.println(searchedUsername);
+                            } else {
+                                out.println("User does not exist.");
+                            }
+                        case "7": // Exit
+                            //done = true; // Exits loop
                             out.println("Goodbye!"); // Send goodbye to client
                             break;
 
                         default:
                             out.println("Invalid choice. Please try again.");
                     }
-                }
+                //}
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
