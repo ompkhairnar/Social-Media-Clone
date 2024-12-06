@@ -4,7 +4,7 @@ import java.util.List;
 
 public class FoundationDatabase implements FoundationDatabaseInterface {
     private ArrayList<User> users;
-    private String userFileName = "C:\\Users\\snake\\Downloads\\CS180-Group-Project-main\\CS180-Group-Project-main\\userStorage.csv";
+    private String userFileName;
 
     public FoundationDatabase(ArrayList<User> users, String filename) {
         this.users = users;
