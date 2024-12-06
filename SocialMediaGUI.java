@@ -247,6 +247,7 @@ class MainScreen extends JFrame {
     private void sendMessage() {
         String message = inputField.getText().trim();
 <<<<<<< HEAD
+<<<<<<< HEAD
         if (!message.isEmpty() && currentFriend != null) {
             try {
                 out.println("4");
@@ -268,11 +269,16 @@ class MainScreen extends JFrame {
                 showErrorDialog("Error sending message " + ex.getMessage());
             }
 =======
+=======
+>>>>>>> parent of 96acdac (updated all of gui to have messaging features but still need to figure out server connection)
         if (!message.isEmpty()) {
             messageArea.append("You: " + message + "\n");
             inputField.setText("");
 
             // TODO: Implement actual message sending logic with the server/client
+<<<<<<< HEAD
+>>>>>>> parent of 96acdac (updated all of gui to have messaging features but still need to figure out server connection)
+=======
 >>>>>>> parent of 96acdac (updated all of gui to have messaging features but still need to figure out server connection)
         }
     }

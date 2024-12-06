@@ -86,27 +86,27 @@ public class MessageTest {
     @Test
     public void testMessageUserCreatesFile() throws Exception {
         User sender = new User("senderUser", "password123", true);
-        String receiver = "recipientUser";
+        User receiver = new User("receiverUser", "password456", true);
         Message message = new Message(sender);
 
         String testMessage = "Hello, this is a test message!";
         message.messageUser(receiver, testMessage);
 
-        File messageFile = new File(sender.getUsername() + receiver + "messages");
+        File messageFile = new File(sender.getUsername() + receiver.getUsername() + "messages");
         Assert.assertTrue("Expected message file to be created", messageFile.exists());
     }
 
     @Test
     public void testMessageUserWritesContent() throws Exception {
         User sender = new User("senderUser2", "password123", true);
-        String receiver = "receiverUser2";
+        User receiver = new User("receiverUser2", "password456", true);
         Message message = new Message(sender);
 
         String testMessage = "Hello, this is a test message!";
         message.messageUser(receiver, testMessage);
 
         StringBuilder fileContent = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(sender.getUsername() + receiver+ "messages"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(sender.getUsername() + receiver.getUsername() + "messages"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 fileContent.append(line);
@@ -119,7 +119,7 @@ public class MessageTest {
     @Test
     public void testGetMessagesWithExistingFile() throws Exception {
         User sender = new User("senderUser3", "password123", true );
-        String receiver = "receiverUser3";
+        User receiver = new User("receiverUser3", "password456", true);
         Message message = new Message(sender);
 
         String testMessage = "Hello, test message for reading!";
@@ -132,7 +132,7 @@ public class MessageTest {
     @Test
     public void testGetMessagesWithNoFile() throws Exception {
         User sender = new User("senderUser4", "password123", true);
-        String receiver = "receiverUser4";
+        User receiver = new User("receiverUser4", "password456", true);
         Message message = new Message(sender);
 
         String result = message.getMessages(receiver);
