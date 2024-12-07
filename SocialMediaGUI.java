@@ -24,10 +24,6 @@ public class SocialMediaGUI extends JFrame {
         initializeComponents();
     }
 
-    public SocialMediaGUI(String nothing) {
-
-    }
-
     private void initializeComponents() {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(3, 1, 10, 10));
@@ -77,32 +73,16 @@ public class SocialMediaGUI extends JFrame {
     }
 
     private class LoginAction implements ActionListener {
-        public void startServer(String username, String password) {
-            try (Socket socket = new Socket("localhost", 4545);
-                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-                out.println(username);
-                out.println(password);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-
-            }
-
-        }
 
         private User user;
-
         public void actionPerformed(ActionEvent e) {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
-            startServer(username, password);
             try {
                 user = new User(username, password);
                 SocialMediaGUI.this.loggedInUsername = username;
-                System.out.println(SocialMediaGUI.this.loggedInUsername);
-                System.out.println("Instance in LoginAction: " + SocialMediaGUI.this);
+                //System.out.println(SocialMediaGUI.this.loggedInUsername);
+                //System.out.println("Instance in LoginAction: " + SocialMediaGUI.this);
                 SocialMediaGUI.this.loggedInPass = password;
                 showSuccessDialog("Login successful!");
                 openMainScreen(user, false);
@@ -114,7 +94,6 @@ public class SocialMediaGUI extends JFrame {
 
     private class SignUpAction implements ActionListener {
         private User user;
-
         public void actionPerformed(ActionEvent e) {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
@@ -136,8 +115,8 @@ public class SocialMediaGUI extends JFrame {
     }
 
     public String getUsername() {
-        System.out.println(this.loggedInUsername);
-        System.out.println("Instance in getUsername: " + this);
+        //System.out.println(this.loggedInUsername);
+        //System.out.println("Instance in getUsername: " + this);
         return this.loggedInUsername;
     }
 
@@ -163,11 +142,14 @@ class MainScreen extends JFrame  {
     private DefaultListModel<String> friendListModel;
     private String currentFriend = null;
     private SocialMediaClient client;
+    private SocialMediaGUI loginGUI;
+
     private Timer timer;
 
     public MainScreen(SocialMediaGUI loginGUI, User user, boolean isNewUser) {
         this.user = user;
         this.isNewUser = isNewUser;
+        this.loginGUI = loginGUI;
         setTitle("Social Media Platform");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -215,7 +197,6 @@ class MainScreen extends JFrame  {
         
        
     }
-    
     public void stopTimer() {
         if (timer != null && timer.isRunning()) {
             timer.stop();
@@ -234,8 +215,8 @@ class MainScreen extends JFrame  {
         JTextField searchBar = new JTextField(20);
         JButton searchButton = new JButton("Search");
         searchButton.addActionListener(e -> {
-            // System.out.println("Size");
-            System.out.println(search(searchBar.getText()));
+            //System.out.println("Size");
+            search(searchBar.getText());
         });
         JPanel topPanel = new JPanel(new BorderLayout());
         JPanel searchPanel = new JPanel(new BorderLayout());
@@ -245,7 +226,7 @@ class MainScreen extends JFrame  {
         topPanel.add(searchPanel, BorderLayout.WEST);
         add(topPanel, BorderLayout.NORTH);
 
-        client = new SocialMediaClient();
+        //client = new SocialMediaClient();
 
         // left sidebar
         friendListModel = new DefaultListModel<>();
@@ -279,6 +260,7 @@ class MainScreen extends JFrame  {
 
         if (!isNewUser) {
             String s = user.getUserFriends();
+            //System.out.println("Friend: " + s);
             String[] userFriends = s.split(";");
             for (int i = 0; i < userFriends.length; i++) {
                 friendListModel.addElement(userFriends[i]);
@@ -341,19 +323,188 @@ class MainScreen extends JFrame  {
 
     }
 
+   /*  private void openSearchedScreen(User user, boolean isNewUser) {
+        SearchedScreen searchedScreen = new SearchedScreen(loginGUI, this, getUser(), isNewUser);
+        searchedScreen.setVisible(true);
+        this.setVisible(false);
+    }*/
+
     public void displayMessage(String sender, String message) {
         messageArea.append(sender + ": " + message + "\n");
     }
 
-    public String search(String searched) {
+    public void search (String searched) {
         String result = "1";
-        System.out.println("Before: " + result);
+        //System.out.println("Before: " + result);
         if (!searched.isEmpty()) {
             result = client.client("6", searched);
+            //System.out.println("After: " + result);
         }
-        System.out.println("After: " + result);
-        return result;
+        //System.out.println("After: " + result);
+        //return result;
+        //if (result.equals(result))
+        SearchedScreen searchedScreen = new SearchedScreen(loginGUI, this, getUser(), searched);
+        System.out.println("RESULT: " + result);
+        if (result.equals(searched) || result.equals("Blocked"))
+            searchedScreen.setVisible(true);
+        //else if (result.equals("Blocked"))
+        //    JOptionPane.showMessageDialog(null, searched + " is blocked", "Blocked", JOptionPane.ERROR_MESSAGE);
+        else
+            JOptionPane.showMessageDialog(null, "User does not exist!", "Error", JOptionPane.ERROR_MESSAGE);
+        //this.setVisible(false);
     }
 
    
+}
+
+class SearchedScreen extends JFrame {
+    private User user;
+    private boolean isNewUser;
+    private String searched;
+    private JTextArea messageArea;
+    private JTextField inputField;
+    private JButton sendButton;
+    private JList<String> friendList;
+    private DefaultListModel<String> friendListModel;
+    private String currentFriend = null;
+    private SocialMediaClient client;
+    private SocialMediaGUI loginGUI;
+
+
+    public SearchedScreen(SocialMediaGUI loginGUI, MainScreen mainGUI, User user, String searched) {
+        this.user = user;
+        //this.isNewUser = isNewUser;
+        this.searched = searched;
+        this.loginGUI = loginGUI;
+        setTitle(searched);
+        setSize(250, 150);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null); // Center the window
+
+        initializeComponents(mainGUI);
+        client = new SocialMediaClient(loginGUI.getUsername(), loginGUI.getPassword());
+    }
+
+    private void initializeComponents(MainScreen mainGui) {
+        setLayout(new BorderLayout());
+
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(e -> {
+            mainGui.setVisible(true);
+            this.dispose();
+        });
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(cancelButton, BorderLayout.EAST);
+        add(topPanel, BorderLayout.NORTH);
+
+        //client = new SocialMediaClient();
+
+        //chat display
+        messageArea = new JTextArea();
+        messageArea.setEditable(false);
+        messageArea.setLineWrap(true);
+        messageArea.setWrapStyleWord(true);
+        JScrollPane messageScrollPane = new JScrollPane(messageArea);
+        add(messageScrollPane, BorderLayout.CENTER);
+
+        //message input
+        JPanel interactionPanel = new JPanel(new BorderLayout());
+        String s = user.getUserFriends();
+        String b = user.getUserBlocked();
+        String[] userFriends = s.split(";");
+        String[] userBlocked = b.split(";");
+        boolean isFriend = false;
+        boolean isBlocked = false;
+        for(int i = 0; i < userFriends.length; i++) {
+            if (userFriends[i].equals(searched))
+                isFriend = true;
+        }
+        for(int i = 0; i < userBlocked.length; i++) {
+            if (userBlocked[i].equals(searched)) {
+                System.out.println("still blocked");
+                isBlocked = true;
+            }
+        }
+        if (isFriend) {
+            JButton removeButton = new JButton("Remove");
+            removeButton.addActionListener(e -> {
+                remove(searched);
+            });
+            JButton blockButton = new JButton("Block");
+            blockButton.addActionListener(e -> {
+                block(searched);
+            });
+            interactionPanel.add(blockButton, BorderLayout.EAST);
+            interactionPanel.add(removeButton, BorderLayout.LINE_START);
+        } else if (isBlocked) {
+            JButton unblockButton = new JButton("Unblock");
+            unblockButton.addActionListener(e -> {
+                unblock(searched);
+            });
+            interactionPanel.add(unblockButton, BorderLayout.EAST);
+        } else {
+            JButton addButton = new JButton("Add");
+            addButton.addActionListener(e -> {
+                add(searched);
+            });
+            interactionPanel.add(addButton, BorderLayout.EAST);
+        }
+        add(interactionPanel, BorderLayout.SOUTH);
+
+       //sendButton.addActionListener(e -> sendMessage());
+       // inputField.addActionListener(e -> sendButton.doClick()); // Trigger send on Enter key
+
+        /*if(!isNewUser) {
+            String s = user.getUserFriends();
+            String[] userFriends = s.split(";");
+            for(int i = 0; i < userFriends.length; i++) {
+                friendListModel.addElement(userFriends[i]);
+            }
+        }*/
+
+    }
+
+    public void add (String addedUser) {
+        String result = client.client("2", addedUser);
+        if (result.equals(addedUser)) {
+            //mainGUI.setVisible(true);
+            //this.setVisible(false);
+            MainScreen mainScreen = new MainScreen(loginGUI, user, isNewUser);
+            mainScreen.setVisible(true);
+            this.setVisible(false);
+        }
+    }
+
+    public void remove (String removedUser) {
+        String result = client.client("3", removedUser);
+        if (result.equals(removedUser)) {
+            //mainGUI.setVisible(true);
+            //this.setVisible(false);
+            MainScreen mainScreen = new MainScreen(loginGUI, user, isNewUser);
+            mainScreen.setVisible(true);
+            this.setVisible(false);
+        }
+    }
+
+    public void block (String blockedUser) {
+        String result = client.client("1", blockedUser);
+        if (result.equals(blockedUser)) {
+            //mainGUI.setVisible(true);
+            //this.setVisible(false);
+            MainScreen mainScreen = new MainScreen(loginGUI, user, isNewUser);
+            mainScreen.setVisible(true);
+            this.setVisible(false);
+        }
+    }
+
+    public void unblock (String blockedUser) {
+        String result = client.client("8", blockedUser);
+        if (result.equals(blockedUser)) {
+            //mainGUI.setVisible(true);
+            //this.setVisible(false);
+            MainScreen mainScreen = new MainScreen(loginGUI, user, isNewUser);
+            mainScreen.setVisible(true);
+            this.setVisible(false);
+        }
+    }
 }

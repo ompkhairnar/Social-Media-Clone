@@ -15,11 +15,18 @@ import java.util.Scanner;
  */
 public class SocialMediaClient {
 
-    public SocialMediaClient() {
+    private static String username;
+    private static String password;
 
+    public SocialMediaClient(String username, String password) {
+        this.username = username;
+        this.password = password;
     }
 
     public static void main(String[] args) {
+        /*username = "sawyer";
+        password = "password";
+        System.out.println("HIII: " + client("6", "bidit"));
         /*int portNumber = 4545;
         String host = "localhost";
         Scanner sc = new Scanner(System.in);
@@ -111,15 +118,13 @@ public class SocialMediaClient {
         }*/
     }
 
-    public String client (String choice, String action) {
+    public static String client (String choice, String action) {
         int portNumber = 4545;
         String host = "localhost";
         Scanner sc = new Scanner(System.in);
 
-        SocialMediaGUI gui = new SocialMediaGUI("");
-        String username = gui.getUsername();
-        System.out.println("Client User: " + username);
-        String password = gui.getPassword();
+        //String username = "";
+        //String password = "";
 
         try (Socket socket = new Socket(host, portNumber);
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -154,37 +159,45 @@ public class SocialMediaClient {
                 String choice = sc.nextLine();
                 out.println(choice);*/
 
+                System.out.println("USER: " + username);
                 out.println(username);
                 out.println(password);
-
+                String confirmation = in.readLine();
+                //System.out.println("Confirmation: " + confirmation);
                 switch (choice) {
                     case "1": // Block a user
-                        System.out.println("Enter username to block:");
-                        String blockUsername = sc.nextLine();
-                        out.println(blockUsername);
+                        //System.out.println("Enter username to block:");
+                        //String blockUsername = sc.nextLine();
+                        //out.println(blockUsername);
+                        out.println(choice);
+                        out.println(action);
                         String confirmBlock = in.readLine();
                         if (confirmBlock.equals("Success"))
-                            return blockUsername;
+                            return action;
                         else
                             return "";
                         //break;
                     case "2": // Add a friend
-                        System.out.println("Enter username to add:");
-                        String addUsername = sc.nextLine();
-                        out.println(addUsername);
+                        //System.out.println("Enter username to add:");
+                        //String addUsername = sc.nextLine();
+                        //out.println(addUsername);
+                        out.println(choice);
+                        out.println(action);
                         String confirmAdd = in.readLine();
                         if (confirmAdd.equals("Success"))
-                            return addUsername;
+                            return action;
                         else
                             return "";
                         //break;
                     case "3": // Remove a friend
-                        System.out.println("Enter username to remove:");
-                        String removeUsername = sc.nextLine();
-                        out.println(removeUsername);
+                        //System.out.println("Enter username to remove:");
+                        //String removeUsername = sc.nextLine();
+                        //out.println(removeUsername);
+                        out.println(choice);
+                        out.println(action);
                         String confirmRemove = in.readLine();
                         if (confirmRemove.equals("Success"))
-                            return removeUsername;
+                            return action;
                         else
                             return "";
                         //break;
@@ -224,14 +237,25 @@ public class SocialMediaClient {
                         out.println(action);
                         //System.out.println(action);
                         String exists = in.readLine();
-                        if (exists.equals(action))
+                        System.out.println("Heyo: " + exists);
+                        /*if (exists.equals(action))
                             return action;
                         else
-                            return "";
+                            return "";*/
+                        return exists;
                     case "7": // Exit the client
                         //done = true;
                         System.out.println("Exiting...");
                         break;
+                    
+                    case "8": //Unblock
+                        out.println(choice);
+                        out.println(action);
+                        String confirmUnblock = in.readLine();
+                        if (confirmUnblock.equals("Success"))
+                            return action;
+                        else
+                            return "";
                     default:
                         System.out.println("Invalid choice. Please try again.");
                 }

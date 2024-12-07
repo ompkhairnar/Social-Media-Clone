@@ -52,13 +52,14 @@ public class FoundationDatabase implements FoundationDatabaseInterface {
                     }
                     
                     synchronized (users) {
+                        System.out.println("USER: " + username + ", PASS: " + password);
                         User user = new User(username, password); 
-                        for (String friend : friendList) {
+                        /*for (String friend : friendList) {
                             user.addUser(friend); 
                         }
                         for (String block : blockedList) {
                             user.blockUser(block); 
-                        }
+                        }*/
                         users.add(user);
                     }
                 } catch (UserException ue) {

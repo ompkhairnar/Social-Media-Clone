@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Social Media Server class that connects to a social media platform server
@@ -90,11 +91,12 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                 in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
                 // Login process
-                //out.println("Enter Username:");
+                // out.println("Enter Username:");
                 String username = in.readLine();
-                System.out.println(username);
-                //out.println("Enter Password:");
+                System.out.println("USER: " + username);
+                // out.println("Enter Password:");
                 String password = in.readLine();
+                System.out.println("PASS: " + password);
 
                 User user;
                 try {
@@ -106,8 +108,8 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                     return;
                 }
 
-                //boolean done = false;
-                //while (!done) {
+                // boolean done = false;
+                // while (!done) {
                     String choice = in.readLine();
                     System.out.println(choice);
                     switch (choice) {
@@ -123,7 +125,9 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
 
                         case "2": // Add User
                             String addUsername = in.readLine();
+                            System.out.println("Received: " + addUsername);
                             try {
+                                System.out.println(user.getUsername() + ".addUser(" + addUsername + ")");
                                 user.addUser(addUsername);
                                 out.println("Success"); // Send add successful to client
                             } catch (UserException e) {
@@ -202,11 +206,27 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                             }
                         case "6": //Search
                             String searchedUsername = in.readLine();
-                            System.out.println(searchedUsername);
+                            //System.out.println(searchedUsername);
                             boolean search = database.search(searchedUsername);
+                            //System.out.println("Hello");
+                            //System.out.println(search);
                             if (search) {
                                 //database.getUsers();
-                                out.println(searchedUsername);
+                                //System.out.println(searchedUsername);
+                                String blocked = user.getUserBlocked();
+                                ArrayList<String> blockedBlockedList;
+                                if (!blocked.equals(" ")) {
+                                    blockedBlockedList = new ArrayList<>(Arrays.asList(blocked.split(";")));
+                                } else {
+                                    System.out.println("hello");
+                                    blockedBlockedList = new ArrayList<String>();
+                                }
+                                if (blockedBlockedList.contains(searchedUsername)) {
+                                    //System.out.println("HERRO");
+                                    out.println("Blocked");
+                                }
+                                else
+                                    out.println(searchedUsername);
                             } else {
                                 out.println("User does not exist.");
                             }
@@ -215,6 +235,15 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                             out.println("Goodbye!"); // Send goodbye to client
                             break;
 
+                        case "8": //Unblock
+                            String unblockedUser = in.readLine();
+                            try {
+                                user.unblock(unblockedUser);
+                                out.println("Success"); // Send block successful to client
+                            } catch (UserException e) {
+                                out.println("Error: " + e.getMessage());
+                            }
+                            break;
                         default:
                             out.println("Invalid command.");
                     }
@@ -401,6 +430,7 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
         ArrayList<User> users = new ArrayList<>();
         String filename = "userStorage.csv";
         FoundationDatabase database = new FoundationDatabase(users, filename);
+        //database.readUsers(filename);
         SocialMediaServer server = new SocialMediaServer(database);
         new Thread(server).start();
     }

@@ -19,6 +19,16 @@ public class User implements UserInterface {
     private List<String> blockedList;
     private static final String userStorage = "userStorage.csv";
 
+    public static void main(String[] args) {
+        /*User curr = null;
+        try {
+            curr = new User("sawyer", "password");
+            curr.unblock("bidit");
+        } catch (UserException e) {
+            e.printStackTrace();
+        }*/
+    }
+
     public User(String username, String password, boolean isNewUser) throws UserException {
         if (username.contains(" ") || password.contains(" ")) {
             throw new UserException("Bad User Data");
@@ -38,7 +48,8 @@ public class User implements UserInterface {
         this.password = password;
         this.friendList = new ArrayList<>();
         this.blockedList = new ArrayList<>();
-        loginUser();
+
+         loginUser(); //REMOVE IF ERROR
     }
 
     public User(String username) throws UserException {
@@ -49,11 +60,45 @@ public class User implements UserInterface {
         this.password = null; // Not needed for single-param usage
         this.friendList = new ArrayList<>(); // Empty for this case
         this.blockedList = new ArrayList<>(); // Empty for this case
+
+        loginUser(username);
     }
 
     public User(UserException e) {
         username = e.getMessage();
         password = e.getMessage();
+    }
+
+    private void loginUser(String user) throws UserException {
+        try (BufferedReader br = new BufferedReader(new FileReader(userStorage))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                //System.out.println(data[0]);
+                if (data[0].equals(user)) {
+                    System.out.println("I'm in");
+                    this.password = data[1];
+                    synchronized (friendList) {
+                        if (!data[2].equals(" ")) {
+                            System.out.println("FRIENDAS: " + data[2]);
+                            this.friendList = new ArrayList<>(Arrays.asList(data[2].split(";")));
+                        }
+                        //System.out.println(friendList.size());
+                        // for (String f : friendList) {
+                        //     System.out.println("Login " + data[0] + " friend: " + f);
+                        // }
+                    }
+                    synchronized (blockedList) {
+                        if (!data[3].equals(" "))
+                            this.blockedList = new ArrayList<>(Arrays.asList(data[3].split(";")));
+                    }
+                    return;
+                }
+            }
+            throw new UserException("Invalid username or password");
+        } catch (IOException e) {
+            throw new UserException("Error reading file");
+        }
     }
 
     private void loginUser() throws UserException {
@@ -63,10 +108,14 @@ public class User implements UserInterface {
                 String[] data = line.split(",");
                 if (data[0].equals(username) && data[1].equals(password)) {
                     synchronized (friendList) {
-                        this.friendList = new ArrayList<>(Arrays.asList(data[2].split(";")));
+                        if (!data[2].equals(" ")) {
+                            System.out.println("FRIENDAS: " + data[2]);
+                            this.friendList = new ArrayList<>(Arrays.asList(data[2].split(";")));
+                        }
                     }
                     synchronized (blockedList) {
-                        this.blockedList = new ArrayList<>(Arrays.asList(data[3].split(";")));
+                        if (!data[3].equals(" "))
+                            this.blockedList = new ArrayList<>(Arrays.asList(data[3].split(";")));
                     }
                     return;
                 }
@@ -87,14 +136,33 @@ public class User implements UserInterface {
 
     public String getUserFriends() {
         synchronized (friendList) {
-            return String.join(";", friendList);
+            //System.out.println("FRIENDS: " + String.join(";", friendList));
+            String userFriends = String.join(";", friendList);
+            if (userFriends.equals(""))
+                userFriends = " ";
+            return userFriends;
         }
     }
 
     public String getUserBlocked() {
         synchronized (blockedList) {
-            return String.join(";", blockedList);
+            String userBlocked = String.join(";", blockedList);
+            if (userBlocked.equals(""))
+                userBlocked = " ";
+            return userBlocked;
         }
+    }
+
+    public void setUserFriends(ArrayList<String> f) {
+        friendList = f;
+        System.out.println(getUserPassword());
+        for (String friend : friendList) {
+            System.out.println(getUsername() + "FRIEND: " + friend);
+        }
+    }
+
+    public void setUserBlocked(ArrayList<String> b) {
+        blockedList = b;
     }
 
     // checks if the username is taken or not
@@ -138,8 +206,11 @@ public class User implements UserInterface {
     // makes sure user is not already a friend or blocked then adds user to friend
     // list
     public void addUser(String username) throws UserException {
+        User added = null;
         if (!isUserNameTaken(username)) {
             throw new UserException("Username does not exist");
+        } else {
+            added = new User(username);
         }
         synchronized (friendList) {
             if (friendList.contains(username)) {
@@ -153,8 +224,32 @@ public class User implements UserInterface {
         }
         synchronized (friendList) {
             friendList.add(username);
+            updateCSV();
+            /*String addedFriends = added.getUserFriends();
+            System.out.println("ADDEDFRIEND:->" + addedFriends + "<-");
+            ArrayList<String> addedFriendsList;
+            if (!addedFriends.equals("")) {
+                addedFriendsList = new ArrayList<>(Arrays.asList(addedFriends.split(";")));
+            } else {
+                System.out.println("hello");
+                addedFriendsList = new ArrayList<String>();
+            }
+            System.out.println("s" + addedFriendsList.size());
+            addedFriendsList.add(getUsername());
+            added.setUserFriends(addedFriendsList);*/
+            String addedFriends = added.getUserFriends();
+            System.out.println("ADDEDFRIEND:->" + addedFriends + "<-");
+            ArrayList<String> addedFriendsList;
+            if (!addedFriends.equals(" ")) {
+                addedFriendsList = new ArrayList<>(Arrays.asList(addedFriends.split(";")));
+            } else {
+                System.out.println("hello");
+                addedFriendsList = new ArrayList<String>();
+            }
+            if (!addedFriendsList.contains(getUsername()))
+                added.addUser(getUsername());
         }
-        updateCSV();
+        //updateCSV();
     }
 
     // makes sure user is not blocked then adds them to blocked list
@@ -171,7 +266,29 @@ public class User implements UserInterface {
         synchronized (friendList) {
             friendList.remove(username);
         }
+        User blocked = new User(username);
         updateCSV();
+        String blockedFriends = blocked.getUserFriends();
+        String blockedBlocked = blocked.getUserBlocked();
+        System.out.println("BLOCKEDFRIEND:->" + blockedFriends + "<-");
+        ArrayList<String> blockedFriendsList;
+        ArrayList<String> blockedBlockedList;
+        if (!blockedFriends.equals(" ")) {
+            blockedFriendsList = new ArrayList<>(Arrays.asList(blockedFriends.split(";")));
+        } else {
+            System.out.println("hello");
+            blockedFriendsList = new ArrayList<String>();
+        }
+        if (!blockedBlocked.equals(" ")) {
+            blockedBlockedList = new ArrayList<>(Arrays.asList(blockedBlocked.split(";")));
+        } else {
+            System.out.println("hello");
+            blockedBlockedList = new ArrayList<String>();
+        }
+        if (blockedFriendsList.contains(getUsername()))
+            blocked.removeFriend(getUsername());
+        if (!blockedBlockedList.contains(getUsername()))
+            blocked.blockUser(getUsername());
     }
 
     // makes sure user is a friend then removes them
@@ -183,9 +300,49 @@ public class User implements UserInterface {
             if (!friendList.contains(username)) {
                 throw new UserException("User is not your friend");
             }
+            User removed = new User(username);
             friendList.remove(username);
+            System.out.println(getUsername() + " friends: " + friendList);
+            updateCSV();
+            String removedFriends = removed.getUserFriends();
+            System.out.println("REMOVEDFRIEND:->" + removedFriends + "<-");
+            ArrayList<String> removedFriendsList;
+            if (!removedFriends.equals(" ")) {
+                removedFriendsList = new ArrayList<>(Arrays.asList(removedFriends.split(";")));
+            } else {
+                System.out.println("hello");
+                removedFriendsList = new ArrayList<String>();
+            }
+            if (removedFriendsList.contains(getUsername()))
+                removed.removeFriend(getUsername());
         }
+        //updateCSV();
+    }
+
+    public void unblock (String username) throws UserException {
+        if (!isUserNameTaken(username)) {
+            throw new UserException("Username does not exist");
+        }
+        synchronized (blockedList) {
+            if (!blockedList.contains(username)) {
+                throw new UserException("User is not blocked");
+            }
+            blockedList.remove(username);
+        }
+        User blocked = new User(username);
         updateCSV();
+        String blockedFriends = blocked.getUserFriends();
+        String blockedBlocked = blocked.getUserBlocked();
+        System.out.println("BLOCKEDFRIEND:->" + blockedFriends + "<-");
+        ArrayList<String> blockedBlockedList;
+        if (!blockedBlocked.equals(" ")) {
+            blockedBlockedList = new ArrayList<>(Arrays.asList(blockedBlocked.split(";")));
+        } else {
+            System.out.println("hello");
+            blockedBlockedList = new ArrayList<String>();
+        }
+        if (blockedBlockedList.contains(getUsername()))
+            blocked.unblock(getUsername());
     }
 
     // updates our csv file by passing in any new information
