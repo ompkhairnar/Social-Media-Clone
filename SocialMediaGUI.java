@@ -159,6 +159,10 @@ class MainScreen extends JFrame  {
         
     }
 
+    public User getUser() {
+        return user;
+    }
+
     private void createTimer(String lastMessage, Message messager) {
             System.out.println("Timer started");
     
