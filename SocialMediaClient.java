@@ -15,11 +15,18 @@ import java.util.Scanner;
  */
 public class SocialMediaClient {
 
-    public SocialMediaClient() {
+    private static String username;
+    private static String password;
 
+    public SocialMediaClient(String username, String password) {
+        this.username = username;
+        this.password = password;
     }
 
     public static void main(String[] args) {
+        /*username = "sawyer";
+        password = "password";
+        System.out.println("HIII: " + client("6", "bidit"));*/
         /*int portNumber = 4545;
         String host = "localhost";
         Scanner sc = new Scanner(System.in);
@@ -111,15 +118,13 @@ public class SocialMediaClient {
         }*/
     }
 
-    public String client (String choice, String action) {
+    public static String client (String choice, String action) {
         int portNumber = 4545;
         String host = "localhost";
         Scanner sc = new Scanner(System.in);
 
-        SocialMediaGUI gui = new SocialMediaGUI("");
-        String username = gui.getUsername();
-        System.out.println("Client User: " + username);
-        String password = gui.getPassword();
+        //String username = "";
+        //String password = "";
 
         try (Socket socket = new Socket(host, portNumber);
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -154,9 +159,11 @@ public class SocialMediaClient {
                 String choice = sc.nextLine();
                 out.println(choice);*/
 
+                System.out.println("USER: " + username);
                 out.println(username);
                 out.println(password);
-
+                String confirmation = in.readLine();
+                //System.out.println("Confirmation: " + confirmation);
                 switch (choice) {
                     case "1": // Block a user
                         System.out.println("Enter username to block:");
@@ -224,6 +231,7 @@ public class SocialMediaClient {
                         out.println(action);
                         //System.out.println(action);
                         String exists = in.readLine();
+                        System.out.println("Heyo: " + exists);
                         if (exists.equals(action))
                             return action;
                         else

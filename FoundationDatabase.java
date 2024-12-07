@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class FoundationDatabase implements FoundationDatabaseInterface {
     private ArrayList<User> users;
@@ -8,43 +9,99 @@ public class FoundationDatabase implements FoundationDatabaseInterface {
     public FoundationDatabase(ArrayList<User> users, String filename) {
         this.users = users;
         userFileName = filename;
+
+        if (!readUsers(userFileName)) {
+            System.err.println("Error: Failed to load users from file.");
+        } else {
+            System.out.println("Users loaded successfully from file.");
+        }
     }
 
     // Bidit
     public boolean readUsers(String file) {
         try {
-            File f = new File(userFileName);
-            FileReader fr = new FileReader(f);
-            BufferedReader br = new BufferedReader(fr);
-            String line = br.readLine();
-            while (line != null) {
-                String[] arr = line.split(",");
-                synchronized (users) {  // Only lock access to users during modification
-                    try {
-                        users.add(new User(arr[0], arr[1]));
-                    } catch (UserException ue) {
-                        users.add(new User(ue));
+            File f = new File(file);
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line;
+            while ((line = br.readLine()) != null) {
+                try {
+                    System.out.println("Loading user: " + line); // Debugging
+                    String[] arr = line.split(",");
+    
+                    // Ensure the line has at least two fields for username and password
+                    if (arr.length < 2) {
+                        System.err.println("Skipping malformed line: " + line);
+                        continue;
                     }
+    
+                    String username = arr[0];
+                    String password = arr[1];
+    
+                    // Use default values if friends or blocked fields are missing
+                    String friends = (arr.length > 2 && !arr[2].isBlank()) ? arr[2] : "";
+                    String blocked = (arr.length > 3 && !arr[3].isBlank()) ? arr[3] : "";
+    
+                    ArrayList<String> friendList = new ArrayList<>();
+                    ArrayList<String> blockedList = new ArrayList<>();
+    
+                    if (!friends.isEmpty()) {
+                        friendList = new ArrayList<>(List.of(friends.split(";")));
+                    }
+                    if (!blocked.isEmpty()) {
+                        blockedList = new ArrayList<>(List.of(blocked.split(";")));
+                    }
+                    
+                    synchronized (users) {
+                        System.out.println("USER: " + username + ", PASS: " + password);
+                        User user = new User(username, password); 
+                        /*for (String friend : friendList) {
+                            user.addUser(friend); 
+                        }
+                        for (String block : blockedList) {
+                            user.blockUser(block); 
+                        }*/
+                        users.add(user);
+                    }
+                } catch (UserException ue) {
+                    System.err.println("Skipping invalid user: " + line + " - " + ue.getMessage());
+                } catch (Exception e) {
+                    System.err.println("Unexpected error while processing line: " + line);
+                    e.printStackTrace();
                 }
-                line = br.readLine();
             }
             br.close();
         } catch (IOException e) {
-            return false;
+            System.err.println("Error reading file: " + file);
+            e.printStackTrace();
+            return false; 
         }
-        return true;
+        System.out.println("Loaded users: " + users.size()); // Debugging
+        return true; 
     }
+    
+    
 
     // Bidit
-    public boolean createUser(String username, String password) {
-        synchronized (users) {  // Only lock access to users during modification
+    @Override
+    public void createUser(String username, String password) throws UserException {
+        synchronized (users) {
+            if (search(username)) {
+                throw new UserException("Username is already taken."); // Throw exception for duplicate username
+            }
+    
             try {
-                users.add(new User(username, password));
-            } catch (UserException ue) {
-                return false;
+                // Create a new user
+                User newUser = new User(username, password);
+                users.add(newUser);
+    
+                // Write the new user to the file
+                try (PrintWriter pw = new PrintWriter(new FileWriter(userFileName, true))) {
+                    pw.println(username + "," + password + ",,");
+                }
+            } catch (IOException e) {
+                throw new UserException("Error saving user to file: " + e.getMessage()); // Wrap IOException in UserException
             }
         }
-        return true;
     }
 
     // Richard
@@ -65,6 +122,19 @@ public class FoundationDatabase implements FoundationDatabaseInterface {
             }
         }
         return false;
+    }
+
+    // same as above function just different name
+    public User getUser(String username) throws UserException {
+        System.out.println(users);
+        synchronized (users) { 
+            for (User user : users) {
+                if (user.getUsername().equalsIgnoreCase(username)) {
+                    return user; 
+                }
+            }
+        }
+        throw new UserException("User not found: " + username); 
     }
 
     // Richard

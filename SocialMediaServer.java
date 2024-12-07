@@ -89,11 +89,12 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                 in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
                 // Login process
-                //out.println("Enter Username:");
+                // out.println("Enter Username:");
                 String username = in.readLine();
-                System.out.println(username);
-                //out.println("Enter Password:");
+                System.out.println("USER: " + username);
+                // out.println("Enter Password:");
                 String password = in.readLine();
+                System.out.println("PASS: " + password);
 
                 User user;
                 try {
@@ -105,8 +106,8 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                     return;
                 }
 
-                //boolean done = false;
-                //while (!done) {
+                // boolean done = false;
+                // while (!done) {
                     String choice = in.readLine();
                     System.out.println(choice);
                     switch (choice) {
@@ -210,8 +211,11 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                             String searchedUsername = in.readLine();
                             System.out.println(searchedUsername);
                             boolean search = database.search(searchedUsername);
+                            //System.out.println("Hello");
+                            System.out.println(search);
                             if (search) {
                                 //database.getUsers();
+                                System.out.println(searchedUsername);
                                 out.println(searchedUsername);
                             } else {
                                 out.println("User does not exist.");
@@ -246,6 +250,7 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
         ArrayList<User> users = new ArrayList<>();
         String filename = "userStorage.csv";
         FoundationDatabase database = new FoundationDatabase(users, filename);
+        //database.readUsers(filename);
         SocialMediaServer server = new SocialMediaServer(database);
         new Thread(server).start();
     }

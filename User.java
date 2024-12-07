@@ -63,10 +63,12 @@ public class User implements UserInterface {
                 String[] data = line.split(",");
                 if (data[0].equals(username) && data[1].equals(password)) {
                     synchronized (friendList) {
-                        this.friendList = new ArrayList<>(Arrays.asList(data[2].split(";")));
+                        if (!data[2].equals(" "))
+                            this.friendList = new ArrayList<>(Arrays.asList(data[2].split(";")));
                     }
                     synchronized (blockedList) {
-                        this.blockedList = new ArrayList<>(Arrays.asList(data[3].split(";")));
+                        if (!data[3].equals(" "))
+                            this.blockedList = new ArrayList<>(Arrays.asList(data[3].split(";")));
                     }
                     return;
                 }

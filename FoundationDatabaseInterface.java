@@ -4,7 +4,7 @@ public interface FoundationDatabaseInterface {
 
     public boolean readUsers(String file);
 
-    public boolean createUser(String username, String password);
+    public void createUser(String username, String password) throws UserException;
 
     public String viewUser(String username);
 

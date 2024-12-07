@@ -19,9 +19,6 @@ public class SocialMediaGUI extends JFrame {
         setLocationRelativeTo(null);
         initializeComponents();
     }
-    public SocialMediaGUI(String nothing) {
-
-    }
 
     private void initializeComponents() {
         JPanel panel = new JPanel();
@@ -77,13 +74,12 @@ public class SocialMediaGUI extends JFrame {
         public void actionPerformed(ActionEvent e) {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
-            loggedInUsername = username;
-            loggedInPass = password;
             try {
                 user = new User(username, password);
-               // loggedInUsername = username;
-                System.out.println(loggedInUsername);
-                //loggedInPass = password;
+                SocialMediaGUI.this.loggedInUsername = username;
+                System.out.println(SocialMediaGUI.this.loggedInUsername);
+                //System.out.println("Instance in LoginAction: " + SocialMediaGUI.this);
+                SocialMediaGUI.this.loggedInPass = password;
                 showSuccessDialog("Login successful!");
                 openMainScreen(user, false);
             } catch (UserException ex) {
@@ -115,8 +111,9 @@ public class SocialMediaGUI extends JFrame {
     }
 
     public String getUsername() {
-        System.out.println(loggedInUsername);
-        return loggedInUsername;
+        System.out.println(this.loggedInUsername);
+        //System.out.println("Instance in getUsername: " + this);
+        return this.loggedInUsername;
     }
 
     public String getPassword() {
@@ -141,17 +138,24 @@ class MainScreen extends JFrame {
     private DefaultListModel<String> friendListModel;
     private String currentFriend = null;
     private SocialMediaClient client;
+    private SocialMediaGUI loginGUI;
 
 
     public MainScreen(SocialMediaGUI loginGUI, User user, boolean isNewUser) {
         this.user = user;
         this.isNewUser = isNewUser;
+        this.loginGUI = loginGUI;
         setTitle("Social Media Platform");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // Center the window
 
         initializeComponents(loginGUI);
+        client = new SocialMediaClient(loginGUI.getUsername(), loginGUI.getPassword());
+    }
+
+    public User getUser() {
+        return user;
     }
 
     private void initializeComponents(SocialMediaGUI loginGUI) {
@@ -166,7 +170,7 @@ class MainScreen extends JFrame {
         JButton searchButton = new JButton("Search");
         searchButton.addActionListener(e -> {
             //System.out.println("Size");
-            System.out.println(search(searchBar.getText()));
+            search(searchBar.getText());
         });
         JPanel topPanel = new JPanel(new BorderLayout());
         JPanel searchPanel = new JPanel(new BorderLayout());
@@ -176,7 +180,7 @@ class MainScreen extends JFrame {
         topPanel.add(searchPanel, BorderLayout.WEST);
         add(topPanel, BorderLayout.NORTH);
 
-        client = new SocialMediaClient();
+        //client = new SocialMediaClient();
 
         //left sidebar
         friendListModel = new DefaultListModel<>();
@@ -236,17 +240,109 @@ class MainScreen extends JFrame {
         }
     }
 
+   /*  private void openSearchedScreen(User user, boolean isNewUser) {
+        SearchedScreen searchedScreen = new SearchedScreen(loginGUI, this, getUser(), isNewUser);
+        searchedScreen.setVisible(true);
+        this.setVisible(false);
+    }*/
+
     public void displayMessage(String sender, String message) {
         messageArea.append(sender + ": " + message + "\n");
     }
 
-    public String search (String searched) {
+    public void search (String searched) {
         String result = "1";
         System.out.println("Before: " + result);
         if (!searched.isEmpty()) {
             result = client.client("6", searched);
+            System.out.println("After: " + result);
         }
-        System.out.println("After: " + result);
-        return result;
+        //System.out.println("After: " + result);
+        //return result;
+        SearchedScreen searchedScreen = new SearchedScreen(loginGUI, this, getUser(), searched);
+        searchedScreen.setVisible(true);
+        //this.setVisible(false);
+    }
+}
+
+class SearchedScreen extends JFrame {
+    private User user;
+    private boolean isNewUser;
+    private String searched;
+    private JTextArea messageArea;
+    private JTextField inputField;
+    private JButton sendButton;
+    private JList<String> friendList;
+    private DefaultListModel<String> friendListModel;
+    private String currentFriend = null;
+    private SocialMediaClient client;
+
+
+    public SearchedScreen(SocialMediaGUI loginGUI, MainScreen mainGUI, User user, String searched) {
+        this.user = user;
+        //this.isNewUser = isNewUser;
+        this.searched = searched;
+        setTitle(searched);
+        setSize(250, 150);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null); // Center the window
+
+        initializeComponents(mainGUI);
+        client = new SocialMediaClient(loginGUI.getUsername(), loginGUI.getPassword());
+    }
+
+    private void initializeComponents(MainScreen mainGui) {
+        setLayout(new BorderLayout());
+
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(e -> {
+            mainGui.setVisible(true);
+            this.dispose();
+        });
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(cancelButton, BorderLayout.EAST);
+        add(topPanel, BorderLayout.NORTH);
+
+        //client = new SocialMediaClient();
+
+        //chat display
+        messageArea = new JTextArea();
+        messageArea.setEditable(false);
+        messageArea.setLineWrap(true);
+        messageArea.setWrapStyleWord(true);
+        JScrollPane messageScrollPane = new JScrollPane(messageArea);
+        add(messageScrollPane, BorderLayout.CENTER);
+
+        //message input
+        JPanel interactionPanel = new JPanel(new BorderLayout());
+        String s = user.getUserFriends();
+        String[] userFriends = s.split(";");
+        boolean isFriend = false;
+        for(int i = 0; i < userFriends.length; i++) {
+            if (userFriends[i].equals(searched))
+                isFriend = true;
+        }
+        if (isFriend) {
+            JButton removeButton = new JButton("Remove");
+            JButton blockButton = new JButton("Block");
+            interactionPanel.add(blockButton, BorderLayout.EAST);
+            interactionPanel.add(removeButton, BorderLayout.LINE_START);
+        } else {
+            JButton addButton = new JButton("Add");
+            interactionPanel.add(addButton, BorderLayout.EAST);
+        }
+        add(interactionPanel, BorderLayout.SOUTH);
+
+       //sendButton.addActionListener(e -> sendMessage());
+       // inputField.addActionListener(e -> sendButton.doClick()); // Trigger send on Enter key
+
+        /*if(!isNewUser) {
+            String s = user.getUserFriends();
+            String[] userFriends = s.split(";");
+            for(int i = 0; i < userFriends.length; i++) {
+                friendListModel.addElement(userFriends[i]);
+            }
+        }*/
+
     }
 }
