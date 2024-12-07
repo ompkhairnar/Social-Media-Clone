@@ -1,8 +1,12 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.nio.file.FileSystemAlreadyExistsException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import javax.swing.*;
 
 public class SocialMediaGUI extends JFrame {
     private JTextField usernameField;
@@ -128,7 +132,7 @@ public class SocialMediaGUI extends JFrame {
     }
 }
 
-class MainScreen extends JFrame {
+class MainScreen extends JFrame  {
     private User user;
     private boolean isNewUser;
     private JTextArea messageArea;
@@ -152,51 +156,46 @@ class MainScreen extends JFrame {
         setLocationRelativeTo(null); // Center the window
 
         initializeComponents(loginGUI);
-        client = new SocialMediaClient(loginGUI.getUsername(), loginGUI.getPassword());
-    }
-
-    public User getUser() {
-        return user;
+        
     }
 
     private void createTimer(String lastMessage, Message messager) {
-            System.out.println("timer started"); 
-            
+            System.out.println("Timer started");
+    
+            final String[] lastPrintedMessage = {lastMessage};
+        
             int delay = 1000;
             timer = new Timer(delay, event -> {
-                
-                    try {
-                        if (currentFriend == null || currentFriend.isEmpty()) {
-                            return;
+                try {
+                    if (currentFriend == null || currentFriend.isEmpty()) {
+                        return;
+                    }
+        
+                    String messages = messager.getMessages(currentFriend);
+                    String[] messagesArray = messages.split("\n");
+                    boolean startReading = false; 
+        
+                    for (String message : messagesArray) {
+                        // Print only if it's new
+                        if (startReading) {
+                            messageArea.append(message + "\n");
+                            lastPrintedMessage[0] = message; // Update the last printed message
                         }
-    
-                        String messages = messager.getMessages(currentFriend);
-                        String[] messagesArray = messages.split("\n");
-                        boolean startReading = false; 
-                        for(String x : messagesArray) {
-                            String accLast; 
-                            if(startReading){
-                            accLast = x; 
-                            messageArea.append(x + "\n");
-                            System.out.println("printing last thing");
-                            
-                        }
-                        if(x.equals(lastMessage)){
+                        if(message.equals(lastPrintedMessage[0])){
                             startReading = true; 
                         }
                     }
-                    
-                    
-
-            
-
                 } catch (Exception e) {
                     e.printStackTrace();
-                   
                 }
+
+            });
             
-        });
-        timer.start();
+            timer.start(); 
+
+        
+        
+       
     }
     public void stopTimer() {
         if (timer != null && timer.isRunning()) {
@@ -229,7 +228,7 @@ class MainScreen extends JFrame {
 
         //client = new SocialMediaClient();
 
-        //left sidebar
+        // left sidebar
         friendListModel = new DefaultListModel<>();
         friendList = new JList<>(friendListModel);
         friendList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -240,7 +239,7 @@ class MainScreen extends JFrame {
         friendScrollPane.setPreferredSize(new Dimension(150, 0));
         add(friendScrollPane, BorderLayout.WEST);
 
-        //chat display
+        // chat display
         messageArea = new JTextArea();
         messageArea.setEditable(false);
         messageArea.setLineWrap(true);
@@ -248,7 +247,7 @@ class MainScreen extends JFrame {
         JScrollPane messageScrollPane = new JScrollPane(messageArea);
         add(messageScrollPane, BorderLayout.CENTER);
 
-        //message input
+        // message input
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputField = new JTextField();
         sendButton = new JButton("Send");
@@ -259,34 +258,16 @@ class MainScreen extends JFrame {
         sendButton.addActionListener(e -> sendMessage());
         inputField.addActionListener(e -> sendButton.doClick()); // Trigger send on Enter key
 
-        if(!isNewUser) {
+        if (!isNewUser) {
             String s = user.getUserFriends();
             //System.out.println("Friend: " + s);
             String[] userFriends = s.split(";");
-            for(int i = 0; i < userFriends.length; i++) {
+            for (int i = 0; i < userFriends.length; i++) {
                 friendListModel.addElement(userFriends[i]);
             }
         }
 
     }
-    /*private void selectFriend() {
-        currentFriend = friendList.getSelectedValue();
-        if (currentFriend != null) {
-            messageArea.setText(""); // Clear the chat area
-            setTitle("Chat with " + currentFriend);
-            // TODO: Load chat history with the selected friend from the server or local storage
-        }
-    }
-
-    private void sendMessage() {
-        String message = inputField.getText().trim();
-        if (!message.isEmpty()) {
-            messageArea.append("You: " + message + "\n");
-            inputField.setText("");
-
-            // TODO: Implement actual message sending logic with the server/client
-        }
-    }*/
 
     private void selectFriend() {
         try {
@@ -294,6 +275,7 @@ class MainScreen extends JFrame {
             if (selectedValue == null || selectedValue.equals(currentFriend)) {
                 return;
             }
+            stopTimer(); 
 
             currentFriend = selectedValue; // Update the current friend
 
@@ -330,7 +312,6 @@ class MainScreen extends JFrame {
             String message = inputField.getText().trim();
             Message mes = new Message(user);
             if (!message.isEmpty()) {
-                messageArea.append("You: " + message + "\n");
                 inputField.setText("");
 
                 mes.messageUser(currentFriend, (user.getUsername() + ": " + message));
@@ -372,6 +353,8 @@ class MainScreen extends JFrame {
             JOptionPane.showMessageDialog(null, "User does not exist!", "Error", JOptionPane.ERROR_MESSAGE);
         //this.setVisible(false);
     }
+
+   
 }
 
 class SearchedScreen extends JFrame {

@@ -41,23 +41,16 @@ public class User implements UserInterface {
     }
 
     public User(String username, String password) throws UserException {
-        if (username == null || username.isBlank()) {
-            throw new UserException("Username cannot be null or empty.");
+        if (username.contains(" ") || password.contains(" ")) {
+            throw new UserException("Bad User Data");
         }
-        if (password == null || password.isBlank()) {
-            throw new UserException("Password cannot be null or empty.");
-        }
-        
         this.username = username;
         this.password = password;
-    
-        // Initialize empty lists for friends and blocked users
         this.friendList = new ArrayList<>();
         this.blockedList = new ArrayList<>();
 
          loginUser(); //REMOVE IF ERROR
     }
-    
 
     public User(String username) throws UserException {
         if (username.contains(" ")) {

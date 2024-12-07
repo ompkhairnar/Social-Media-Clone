@@ -47,11 +47,15 @@ public class Message implements MessageInterface {
                     try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
                         writer.write(message);
                         writer.newLine();
+                        updateFile(username, message);
                     }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (UserException ex) {
+                ex.printStackTrace();
             }
+             
         }
     }
 
@@ -88,11 +92,11 @@ public class Message implements MessageInterface {
     }
 
     // Method to update the file in real-time
-    public void updateFile(User user, String newMessage) throws UserException {
+    public void updateFile(String user, String newMessage) throws UserException {
         synchronized (fileLock) { // Synchronize critical section to ensure thread safety
             List<String> fileStorage = new ArrayList<>();
 
-            String fileName = messager.getUsername() + user.getUsername() + "messages";
+            String fileName = messager.getUsername() + user + "messages";
             File file = new File(fileName);
 
             // Read existing messages into a list
@@ -106,7 +110,7 @@ public class Message implements MessageInterface {
             }
 
             // Add the new message to the list
-            fileStorage.add(newMessage);
+            //fileStorage.add(newMessage);
 
             // Write the updated list back to the file
             try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
