@@ -178,44 +178,44 @@ class MainScreen extends JFrame  {
     }
 
     private void createTimer(String lastMessage, Message messager) {
-            System.out.println("timer started"); 
-            
+            System.out.println("Timer started");
+    
+            final String[] lastPrintedMessage = {lastMessage};
+        
             int delay = 1000;
             timer = new Timer(delay, event -> {
-                
-                    try {
-                        if (currentFriend == null || currentFriend.isEmpty()) {
-                            return;
+                try {
+                    if (currentFriend == null || currentFriend.isEmpty()) {
+                        return;
+                    }
+        
+                    String messages = messager.getMessages(currentFriend);
+                    String[] messagesArray = messages.split("\n");
+                    boolean startReading = false; 
+        
+                    for (String message : messagesArray) {
+                        // Print only if it's new
+                        if (startReading) {
+                            messageArea.append(message + "\n");
+                            lastPrintedMessage[0] = message; // Update the last printed message
                         }
-    
-                        String messages = messager.getMessages(currentFriend);
-                        String[] messagesArray = messages.split("\n");
-                        boolean startReading = false; 
-                        for(String x : messagesArray) {
-                            String accLast; 
-                            if(startReading){
-                            accLast = x; 
-                            messageArea.append(x + "\n");
-                            System.out.println("printing last thing");
-                            
-                        }
-                        if(x.equals(lastMessage)){
+                        if(message.equals(lastPrintedMessage[0])){
                             startReading = true; 
                         }
                     }
-                    
-                    
-
-            
-
                 } catch (Exception e) {
                     e.printStackTrace();
-                   
                 }
+
+            });
             
-        });
-        timer.start();
+            timer.start(); 
+
+        
+        
+       
     }
+    
     public void stopTimer() {
         if (timer != null && timer.isRunning()) {
             timer.stop();
@@ -293,6 +293,7 @@ class MainScreen extends JFrame  {
             if (selectedValue == null || selectedValue.equals(currentFriend)) {
                 return;
             }
+            stopTimer(); 
 
             currentFriend = selectedValue; // Update the current friend
 
@@ -329,7 +330,6 @@ class MainScreen extends JFrame  {
             String message = inputField.getText().trim();
             Message mes = new Message(user);
             if (!message.isEmpty()) {
-                messageArea.append("You: " + message + "\n");
                 inputField.setText("");
 
                 mes.messageUser(currentFriend, (user.getUsername() + ": " + message));
