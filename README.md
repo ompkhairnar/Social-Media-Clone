@@ -21,12 +21,16 @@
 | ------- | ---------- | --------------- | -------------- |
 | Richard Yom | Second half of database file, README file | Database | 11/3 |
 |             | SocialMediaClient: handle, send, & retrieve, readMe |  readMe file | 11/17 |
+|             | readMe file, server to GUI connection               | n/a          | 12/7 |
 | Om Khairnar | Messager-related files, test cases | Messenger | 11/3 |
 |             | SocialMediaServer and test cases | n/a | 11/17 |
+|             | View all current messages | n/a | 12/7 |
 | Sawyer Boursheski | User-related files, test cases | User | 11/3 |
 |                   | SocialMediaClient functionality, test cases for server | SocialMediaClient and SocialMediaServer | 11/17 |
-| Bidit Acharyya | First half of database file, test cases | N/A | 11/3 | 
-|             | SocialMediaClient and test cases | Interfaces, TestCases | 11/17 | 
+|                   | Log-in, Log-out, Sign in screen | SocialMediaGUI | 12/7 |
+| Bidit Acharyya | First half of database file, test cases | n/a | 11/3 | 
+|                | SocialMediaClient and test cases | Interfaces, TestCases | 11/17 | 
+|                | Search bar, User Viewer, Add, Block, and Remove functionality | n/a | 12/7 | 
 
 
 
