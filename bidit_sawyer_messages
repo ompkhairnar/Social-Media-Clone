@@ -1,34 +1,9 @@
-bidit: hello
-bidit: hello
-bidit: hi
-bidit: hi
-bidit: hi
-bidit: h
-bidit: hi
-bidit: hi
-bidit: hi
-bidit: hi
-bidit: hi
-bidit: hi
-bidit: hi
-bidit: hi
-bidit: hi
-bidit: hi
-bidit: hi
-bidit: ihj
-bidit: i
-bidit: ih
-sawyer: hello
-sawyer: hi
-sawyer: hi
-sawyer: hi
-sawyer: hi
-sawyer: hi
-sawyer: hi
-sawyer: hi
-sawyer: hi
-bidit: thank god this works
-bidit: hello this works
-sawyer: yes it does work
-bidit: hi
-sawyer: hi
+1: sawyer: hello
+2: sawyer: does this work
+3: bidit: hi
+4: sawyer: hello
+5: sawyer: hi
+6: bidit: this is working right
+7: bidit: hi
+8: bidit: hi
+9: bidit: hi

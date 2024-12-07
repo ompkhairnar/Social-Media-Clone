@@ -37,27 +37,30 @@ public class Message implements MessageInterface {
         this.content = "Error: Invalid content"; // default for error
     }
 
+    // Actual method where the messager messages a user. It creates a new file
+    // if the file does not already exist, but if it does, it appends the file.
     public void messageUser(String username, String message) {
-        synchronized (fileLock) { 
-            try {
-                if (messager.isUserNameTaken(username)) {
-                    String[] users = {messager.getUsername(), username};
-                    Arrays.sort(users); 
-                    String fileName = users[0] + "_" + users[1] + "_messages"; 
-    
-                    File file = new File(fileName);
-    
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
-                        writer.write(message);
-                        writer.newLine();
-                    }
+    synchronized (fileLock) { // Synchronize critical section to ensure thread safety
+        try {
+            if (messager.isUserNameTaken(username)) {
+                // Create a consistent file name by sorting the usernames alphabetically
+                String[] users = {messager.getUsername(), username};
+                Arrays.sort(users); // Sort usernames alphabetically
+                String fileName = users[0] + "_" + users[1] + "_messages"; // Single consistent file name
+
+                File file = new File(fileName);
+
+                // Append the message to the file
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+                    writer.write(message);
+                    writer.newLine();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } 
-        }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } 
     }
-    
+}
 
     // Getter method for the messager user
     public User getMessager() {
@@ -70,7 +73,7 @@ public class Message implements MessageInterface {
 
     // Returns the file of messages between users
     public String getMessages(String username) {
-        synchronized (fileLock) {
+        synchronized (fileLock) { // Synchronize critical section to ensure thread safety
             StringBuilder messages = new StringBuilder();
             try {
                 // Create a consistent file name by sorting the usernames alphabetically
@@ -98,45 +101,51 @@ public class Message implements MessageInterface {
             return messages.toString();
         }
     }
+   
+    public String getFileName(String otherUsername) {
+        // Sort the usernames alphabetically to ensure consistency
+        String[] users = {messager.getUsername(), otherUsername};
+        Arrays.sort(users);
+        return users[0] + "_" + users[1] + "_messages"; // Consistent file naming
+    }
     
+
+    // Method to update the file in real-time
     public void updateFile(String user, String newMessage) throws UserException {
-    synchronized (fileLock) { // Synchronize critical section to ensure thread safety
-        List<String> fileStorage = new ArrayList<>();
-
-        // Create a consistent file name by sorting the usernames alphabetically
-        String[] users = {messager.getUsername(), user};
-        Arrays.sort(users); // Sort usernames alphabetically
-        String fileName = users[0] + "_" + users[1] + "_messages"; // Single consistent file
-
-        File file = new File(fileName);
-
-        // Read existing messages into a list
-        if (file.exists()) { // Ensure file exists before reading
-            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    fileStorage.add(line);
+        synchronized (fileLock) { // Synchronize critical section to ensure thread safety
+            List<String> fileStorage = new ArrayList<>();
+    
+            // Create a consistent file name by sorting the usernames alphabetically
+            String[] users = {messager.getUsername(), user};
+            Arrays.sort(users); // Sort usernames alphabetically
+            String fileName = users[0] + "_" + users[1] + "_messages"; // Single consistent file
+    
+            File file = new File(fileName);
+    
+            // Read existing messages into a list
+            if (file.exists()) { // Ensure file exists before reading
+                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        fileStorage.add(line);
+                    }
+                } catch (IOException e) {
+                    throw new UserException("Error reading message file");
+                }
+            }
+    
+            // Add the new message to the list
+            fileStorage.add(newMessage);
+    
+            // Write the updated list back to the file
+            try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
+                for (String line : fileStorage) {
+                    pw.println(line);
                 }
             } catch (IOException e) {
-                throw new UserException("Error reading message file");
+                throw new UserException("Could not update message file");
             }
-        }
-
-        // Add the new message to the list
-        fileStorage.add(newMessage);
-
-        // Write the updated list back to the file
-        try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
-            for (String line : fileStorage) {
-                pw.println(line);
-            }
-        } catch (IOException e) {
-            throw new UserException("Could not update message file");
         }
     }
-}
-
-   
-
     
 }

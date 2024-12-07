@@ -2,10 +2,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 import javax.swing.*;
 
 public class SocialMediaGUI extends JFrame {
@@ -163,50 +161,7 @@ class MainScreen extends JFrame  {
         return user;
     }
 
-    private void createTimer(String lastMessage, Message messager) {
-            System.out.println("Timer started");
     
-            final String[] lastPrintedMessage = {lastMessage};
-        
-            int delay = 1000;
-            timer = new Timer(delay, event -> {
-                try {
-                    if (currentFriend == null || currentFriend.isEmpty()) {
-                        return;
-                    }
-        
-                    String messages = messager.getMessages(currentFriend);
-                    String[] messagesArray = messages.split("\n");
-                    boolean startReading = false; 
-        
-                    for (String message : messagesArray) {
-                        // Print only if it's new
-                        if (startReading) {
-                            messageArea.append(message + "\n");
-                            lastPrintedMessage[0] = message; // Update the last printed message
-                        }
-                        if(message.equals(lastPrintedMessage[0])){
-                            startReading = true; 
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            });
-            
-            timer.start(); 
-
-        
-        
-       
-    }
-    public void stopTimer() {
-        if (timer != null && timer.isRunning()) {
-            timer.stop();
-            System.out.println("Timer stopped.");
-        }
-    }
 
     private void initializeComponents(SocialMediaGUI loginGUI) {
         setLayout(new BorderLayout());
@@ -259,7 +214,14 @@ class MainScreen extends JFrame  {
         inputPanel.add(sendButton, BorderLayout.EAST);
         add(inputPanel, BorderLayout.SOUTH);
 
-        sendButton.addActionListener(e -> sendMessage());
+        sendButton.addActionListener(e -> {
+            try {
+                sendMessage();
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+        });
         inputField.addActionListener(e -> sendButton.doClick()); // Trigger send on Enter key
 
         if (!isNewUser) {
@@ -292,6 +254,7 @@ class MainScreen extends JFrame  {
             for (String msg : messagesArray) {
                 messageArea.append(msg + "\n");
             }
+
             String messagesss;
             try {
                 messager = new Message(user);
@@ -308,8 +271,49 @@ class MainScreen extends JFrame  {
             ex.printStackTrace();
         }
     }
+    private void createTimer(String lastMessage, Message messager) {
+        System.out.println("Timer started");
 
-    private void sendMessage() {
+        final String[] lastPrintedMessage = {lastMessage};
+    
+        int delay = 1000;
+        timer = new Timer(delay, event -> {
+            try {
+                if (currentFriend == null || currentFriend.isEmpty()) {
+                    return;
+                }
+    
+                String messages = messager.getMessages(currentFriend);
+                String[] messagesArray = messages.split("\n");
+                boolean startReading = false; 
+    
+                for (String message : messagesArray) {
+                    // Print only if it's new
+                    if (startReading) {
+                        messageArea.append(message + "\n");
+                        lastPrintedMessage[0] = message; // Update the last printed message
+                    }
+                    if(message.equals(lastPrintedMessage[0])){
+                        startReading = true; 
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        });
+        
+        timer.start();
+    }
+    
+    public void stopTimer() {
+        if (timer != null && timer.isRunning()) {
+            timer.stop();
+            System.out.println("Timer stopped.");
+        }
+    }
+
+    private void sendMessage() throws IOException {
 
         try {
 
@@ -317,14 +321,24 @@ class MainScreen extends JFrame  {
             Message mes = new Message(user);
             if (!message.isEmpty()) {
                 inputField.setText("");
-
-                mes.messageUser(currentFriend, (user.getUsername() + ": " + message));
+                String name = mes.getFileName(currentFriend); 
+                int line = countLinesInFile(name); 
+                mes.messageUser(currentFriend, ((line+1) + ": " +user.getUsername() + ": " + message));
 
             }
 
         } catch (UserException e) {
         }
 
+    }
+    public static int countLinesInFile(String name) throws IOException {
+        int lineCount = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(name))) {
+            while (reader.readLine() != null) {
+                lineCount++;
+            }
+        }
+        return lineCount;
     }
 
    /*  private void openSearchedScreen(User user, boolean isNewUser) {
