@@ -26,7 +26,7 @@ public class SocialMediaClient {
     public static void main(String[] args) {
         /*username = "sawyer";
         password = "password";
-        System.out.println("HIII: " + client("6", "bidit"));*/
+        System.out.println("HIII: " + client("6", "bidit"));
         /*int portNumber = 4545;
         String host = "localhost";
         Scanner sc = new Scanner(System.in);
@@ -166,32 +166,38 @@ public class SocialMediaClient {
                 //System.out.println("Confirmation: " + confirmation);
                 switch (choice) {
                     case "1": // Block a user
-                        System.out.println("Enter username to block:");
-                        String blockUsername = sc.nextLine();
-                        out.println(blockUsername);
+                        //System.out.println("Enter username to block:");
+                        //String blockUsername = sc.nextLine();
+                        //out.println(blockUsername);
+                        out.println(choice);
+                        out.println(action);
                         String confirmBlock = in.readLine();
                         if (confirmBlock.equals("Success"))
-                            return blockUsername;
+                            return action;
                         else
                             return "";
                         //break;
                     case "2": // Add a friend
-                        System.out.println("Enter username to add:");
-                        String addUsername = sc.nextLine();
-                        out.println(addUsername);
+                        //System.out.println("Enter username to add:");
+                        //String addUsername = sc.nextLine();
+                        //out.println(addUsername);
+                        out.println(choice);
+                        out.println(action);
                         String confirmAdd = in.readLine();
                         if (confirmAdd.equals("Success"))
-                            return addUsername;
+                            return action;
                         else
                             return "";
                         //break;
                     case "3": // Remove a friend
-                        System.out.println("Enter username to remove:");
-                        String removeUsername = sc.nextLine();
-                        out.println(removeUsername);
+                        //System.out.println("Enter username to remove:");
+                        //String removeUsername = sc.nextLine();
+                        //out.println(removeUsername);
+                        out.println(choice);
+                        out.println(action);
                         String confirmRemove = in.readLine();
                         if (confirmRemove.equals("Success"))
-                            return removeUsername;
+                            return action;
                         else
                             return "";
                         //break;
@@ -232,14 +238,24 @@ public class SocialMediaClient {
                         //System.out.println(action);
                         String exists = in.readLine();
                         System.out.println("Heyo: " + exists);
-                        if (exists.equals(action))
+                        /*if (exists.equals(action))
                             return action;
                         else
-                            return "";
+                            return "";*/
+                        return exists;
                     case "7": // Exit the client
                         //done = true;
                         System.out.println("Exiting...");
                         break;
+                    
+                    case "8": //Unblock
+                        out.println(choice);
+                        out.println(action);
+                        String confirmUnblock = in.readLine();
+                        if (confirmUnblock.equals("Success"))
+                            return action;
+                        else
+                            return "";
                     default:
                         System.out.println("Invalid choice. Please try again.");
                 }
