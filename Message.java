@@ -1,6 +1,5 @@
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /*
@@ -37,27 +36,28 @@ public class Message implements MessageInterface {
         this.content = "Error: Invalid content"; // default for error
     }
 
+    // Actual method where the messager messages a user. It creates a new file
+    // if the file does not already exist, but if it does, it appends the file.
     public void messageUser(String username, String message) {
-        synchronized (fileLock) { 
+        synchronized (fileLock) { // Synchronize critical section to ensure thread safety
             try {
                 if (messager.isUserNameTaken(username)) {
-                    String[] users = {messager.getUsername(), username};
-                    Arrays.sort(users); 
-                    String fileName = users[0] + "_" + users[1] + "_messages"; 
-    
+                    String fileName = messager.getUsername() + username + "messages";
                     File file = new File(fileName);
-    
                     try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
                         writer.write(message);
                         writer.newLine();
+                        updateFile(username, message);
                     }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-            } 
+            } catch (UserException ex) {
+                ex.printStackTrace();
+            }
+             
         }
     }
-    
 
     // Getter method for the messager user
     public User getMessager() {
@@ -70,20 +70,13 @@ public class Message implements MessageInterface {
 
     // Returns the file of messages between users
     public String getMessages(String username) {
-        synchronized (fileLock) {
+        synchronized (fileLock) { // Synchronize critical section to ensure thread safety
             StringBuilder messages = new StringBuilder();
             try {
-                // Create a consistent file name by sorting the usernames alphabetically
-                String[] users = {messager.getUsername(), username};
-                Arrays.sort(users); // Sort usernames alphabetically
-                String fileName = users[0] + "_" + users[1] + "_messages"; // Single consistent file name
-    
-                File file = new File(fileName);
-    
+                File file = new File(messager.getUsername() + username + "messages");
                 if (!file.exists()) {
                     return "No messages currently exist between users";
                 } else {
-                    // Read the file content
                     try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                         String line;
                         while ((line = reader.readLine()) != null) {
@@ -93,25 +86,20 @@ public class Message implements MessageInterface {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                return "Error reading messages between users.";
             }
             return messages.toString();
         }
     }
-    
+
+    // Method to update the file in real-time
     public void updateFile(String user, String newMessage) throws UserException {
-    synchronized (fileLock) { // Synchronize critical section to ensure thread safety
-        List<String> fileStorage = new ArrayList<>();
+        synchronized (fileLock) { // Synchronize critical section to ensure thread safety
+            List<String> fileStorage = new ArrayList<>();
 
-        // Create a consistent file name by sorting the usernames alphabetically
-        String[] users = {messager.getUsername(), user};
-        Arrays.sort(users); // Sort usernames alphabetically
-        String fileName = users[0] + "_" + users[1] + "_messages"; // Single consistent file
+            String fileName = messager.getUsername() + user + "messages";
+            File file = new File(fileName);
 
-        File file = new File(fileName);
-
-        // Read existing messages into a list
-        if (file.exists()) { // Ensure file exists before reading
+            // Read existing messages into a list
             try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -120,23 +108,18 @@ public class Message implements MessageInterface {
             } catch (IOException e) {
                 throw new UserException("Error reading message file");
             }
-        }
 
-        // Add the new message to the list
-        fileStorage.add(newMessage);
+            // Add the new message to the list
+            //fileStorage.add(newMessage);
 
-        // Write the updated list back to the file
-        try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
-            for (String line : fileStorage) {
-                pw.println(line);
+            // Write the updated list back to the file
+            try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
+                for (String line : fileStorage) {
+                    pw.println(line);
+                }
+            } catch (IOException e) {
+                throw new UserException("Could not update message file");
             }
-        } catch (IOException e) {
-            throw new UserException("Could not update message file");
         }
     }
-}
-
-   
-
-    
 }

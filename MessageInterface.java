@@ -7,5 +7,5 @@ public interface MessageInterface {
 
     public String getContent();
 
-    public void updateFile(String user, String newMessage) throws UserException;
+    public void updateFile(User user, String newMessage) throws UserException;
 }
