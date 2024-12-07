@@ -3,7 +3,7 @@ public interface MessageInterface {
 
     public User getMessager();
 
-    public String getMessages(String username);
+    public String getMessages(String username) throws UserException;
 
     public String getContent();
 
