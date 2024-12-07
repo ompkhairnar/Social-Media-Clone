@@ -12,24 +12,12 @@ public class SocialMediaGUI extends JFrame {
     private String loggedInUsername;
     private String loggedInPass;
 
-
     public SocialMediaGUI() {
         setTitle("Social Media Login");
         setSize(400, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         initializeComponents();
-        connectToServer();
-    }
-
-    private void connectToServer() {
-        try {
-            socket = new Socket("localhost", 4545); 
-            out = new PrintWriter(socket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        } catch (IOException e) {
-            showErrorDialog("Could not connect to the server. Please try again later.");
-        }
     }
 
     private void initializeComponents() {
@@ -81,6 +69,8 @@ public class SocialMediaGUI extends JFrame {
     }
 
     private class LoginAction implements ActionListener {
+
+        private User user;
         public void actionPerformed(ActionEvent e) {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
@@ -99,24 +89,17 @@ public class SocialMediaGUI extends JFrame {
     }
 
     private class SignUpAction implements ActionListener {
+        private User user;
         public void actionPerformed(ActionEvent e) {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
 
             try {
-                out.println("SIGNUP");
-                out.println(username);
-                out.println(password);
-            
-                String response = in.readLine();
-                if ("Account created successfully!".equals(response)) {
-                    showSuccessDialog("Account created successfully!");
-                    openMainScreen(new User(username, password), true);
-                } else {
-                    showErrorDialog("Sign up failed: " + response);
-                }
-            } catch (IOException | UserException ex) {
-                showErrorDialog("Connection error: Could not sign up.");
+                new User(username, password, true);
+                showSuccessDialog("Account created successfully!");
+                openMainScreen(user, true);
+            } catch (UserException ex) {
+                showErrorDialog("Error: " + ex.getMessage());
             }
         }
     }
@@ -238,54 +221,17 @@ class MainScreen extends JFrame {
         }
 
     }
-    private void selectFriend()  {
-        try {
-            currentFriend = friendList.getSelectedValue();
-            Message messager = new Message(user);
-            if (currentFriend != null) {
-                messageArea.setText(""); // Clear the chat area
-                setTitle("Chat with " + currentFriend);
-                // TODO: Load chat history with the selected friend from the server or local storage
-                String s = messager.getMessages(currentFriend);
-                String[] messages = s.split("\n");
-
-
-            }
-        } catch (UserException ex) {
-            ex.printStackTrace();
+    private void selectFriend() {
+        currentFriend = friendList.getSelectedValue();
+        if (currentFriend != null) {
+            messageArea.setText(""); // Clear the chat area
+            setTitle("Chat with " + currentFriend);
+            // TODO: Load chat history with the selected friend from the server or local storage
         }
-    }
-
-    private void showErrorDialog(String errorMessage) {
-        JOptionPane.showMessageDialog(
-                this,
-                errorMessage,
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
     }
 
     private void sendMessage() {
         String message = inputField.getText().trim();
-        if (!message.isEmpty() && currentFriend != null) {
-            try {
-                out.println("4");
-                out.println(currentFriend);
-                out.println(message);
-                
-                String response = in.readLine();
-                if (response.startsWith("Message sent")) {
-                    messageArea.append("You: " + message + "\n");
-                    inputField.setText("");
-                }
-                else {
-                    showErrorDialog(response);
-                }
-
-
-
-            } catch (IOException ex) {
-                showErrorDialog("Error sending message " + ex.getMessage());
-            }
         if (!message.isEmpty()) {
             messageArea.append("You: " + message + "\n");
             inputField.setText("");
