@@ -101,7 +101,7 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                 User user;
                 try {
                     user = new User(username, password);
-                    System.out.println("Successfully Logged In!"); // Send successful login to client
+                    out.println("Successfully Logged In!"); // Send successful login to client
                     System.out.println("User logged in: " + username); // Printed to server terminal
                 } catch (UserException e) {
                     out.println("Login failed: " + e.getMessage());
@@ -147,7 +147,8 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
 
                         case "4": // Message a user
                             try {
-                                
+                                // Prompt for the recipient's username
+                                //out.println("Enter the username of the recipient:");
                                 String recipientUsername = in.readLine();
 
                                 // Check if the recipient exists in the FoundationDatabase
@@ -178,15 +179,21 @@ public class SocialMediaServer implements Runnable, SocialMediaServerInterface {
                                 }
 
                                 // Prompt for the message content
+                                out.println("Enter your message:");
                                 String messageContent = in.readLine();
 
                                 // Use the Message class to append the message to the file
-                                    
-                                    out.println("Message sent successfully to " + recipient.getUsername() + ".");
+                                try {
+                                    Message message = new Message(user);
+                                    message.messageUser(recipient.getUsername(), messageContent);
+
+                                    //out.println("Message sent successfully to " + recipient.getUsername() + ".");
                                     out.println("Success");
                                     System.out.println("Message from " + user.getUsername() + " to "
                                             + recipient.getUsername() + ": " + messageContent);
-                                
+                                } catch (UserException e) {
+                                    out.println("Error: " + e.getMessage());
+                                }
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 out.println("An error occurred while processing your request.");
