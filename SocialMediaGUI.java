@@ -302,6 +302,8 @@ class MainScreen extends JFrame {
     }*/
 
 
+    
+
     private void initializeComponents(SocialMediaGUI loginGUI) {
         setLayout(new BorderLayout());
 
