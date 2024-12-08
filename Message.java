@@ -37,6 +37,8 @@ public class Message implements MessageInterface {
         this.content = "Error: Invalid content"; // default for error
     }
 
+    // Actual method where the messager messages a user. It creates a new file
+    // if the file does not already exist, but if it does, it appends the file.
     public void messageUser(String username, String message) {
     synchronized (fileLock) { // Synchronize critical section to ensure thread safety
         try {
@@ -70,8 +72,7 @@ public class Message implements MessageInterface {
     }
 
     // Returns the file of messages between users
-    @Override
-    public String getMessages(String username) throws UserException {
+    public String getMessages(String username) {
         synchronized (fileLock) { // Synchronize critical section to ensure thread safety
             StringBuilder messages = new StringBuilder();
             try {
@@ -81,26 +82,18 @@ public class Message implements MessageInterface {
                 String fileName = users[0] + "_" + users[1] + "_messages"; // Single consistent file name
     
                 File file = new File(fileName);
-                
     
-                  
                 if (!file.exists()) {
-                    if(file.createNewFile()){
-                        System.out.println("created file");
-                        messageUser(username, "No previous messages exist between users");
-                        
-                    }
-                
-                    return "No previous messages exist between users";
-                    
-                }
+                    return "No messages currently exist between users";
+                } else {
+                    // Read the file content
                     try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                         String line;
                         while ((line = reader.readLine()) != null) {
                             messages.append(line).append("\n");
                         }
                     }
-                
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 return "Error reading messages between users.";
@@ -129,15 +122,8 @@ public class Message implements MessageInterface {
     
             File file = new File(fileName);
     
-            // If the file does not exist, create it
-            try {
-                if (!file.exists()) {
-                    if (!file.createNewFile()) {
-                        throw new UserException("Could not create message file");
-                    }
-                }
-    
-                // Read existing messages into a list
+            // Read existing messages into a list
+            if (file.exists()) { // Ensure file exists before reading
                 try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                     String line;
                     while ((line = br.readLine()) != null) {
@@ -146,15 +132,15 @@ public class Message implements MessageInterface {
                 } catch (IOException e) {
                     throw new UserException("Error reading message file");
                 }
+            }
     
-                // Add the new message to the list
-                fileStorage.add(newMessage);
+            // Add the new message to the list
+            fileStorage.add(newMessage);
     
-                // Write the updated list back to the file
-                try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
-                    for (String line : fileStorage) {
-                        pw.println(line);
-                    }
+            // Write the updated list back to the file
+            try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
+                for (String line : fileStorage) {
+                    pw.println(line);
                 }
             } catch (IOException e) {
                 throw new UserException("Could not update message file: " + e.getMessage());

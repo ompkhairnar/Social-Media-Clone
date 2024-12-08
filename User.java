@@ -1,3 +1,5 @@
+//import static org.junit.Assert.fail;
+
 import java.io.*;
 import java.util.*;
 
@@ -41,16 +43,23 @@ public class User implements UserInterface {
     }
 
     public User(String username, String password) throws UserException {
-        if (username.contains(" ") || password.contains(" ")) {
-            throw new UserException("Bad User Data");
+        if (username == null || username.isBlank()) {
+            throw new UserException("Username cannot be null or empty.");
         }
+        if (password == null || password.isBlank()) {
+            throw new UserException("Password cannot be null or empty.");
+        }
+        
         this.username = username;
         this.password = password;
+    
+        // Initialize empty lists for friends and blocked users
         this.friendList = new ArrayList<>();
         this.blockedList = new ArrayList<>();
 
          loginUser(); //REMOVE IF ERROR
     }
+    
 
     public User(String username) throws UserException {
         if (username.contains(" ")) {
@@ -195,8 +204,18 @@ public class User implements UserInterface {
         }
         synchronized (User.class) {
             try (PrintWriter pw = new PrintWriter(new FileWriter(userStorage, true))) {
-                pw.println(username + "," + password + "," + String.join(";", friendList) + ","
-                        + String.join(";", blockedList));
+                String blockedString;
+                String friendString;
+                if (friendList.size() == 0)
+                    friendString = " ";
+                else
+                    friendString = String.join(";", friendList);
+                if (blockedList.size() == 0)
+                    blockedString = " ";
+                else
+                    blockedString = String.join(";", blockedList);
+                pw.println(username + "," + password + "," + friendString + ","
+                        + blockedString);
             } catch (IOException e) {
                 throw new UserException("Unable to create account");
             }
