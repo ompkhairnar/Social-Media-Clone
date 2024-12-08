@@ -1,12 +1,11 @@
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import javax.swing.*;
+import java.nio.file.FileSystemAlreadyExistsException;
 
 public class SocialMediaGUI extends JFrame {
     private JTextField usernameField;
@@ -72,6 +71,16 @@ public class SocialMediaGUI extends JFrame {
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
+    public void resetLoginScreen() {
+        usernameField.setText("");
+        passwordField.setText("");
+        usernameField.setEnabled(true);
+        passwordField.setEnabled(true);
+        usernameField.requestFocus();
+        loginButton.setEnabled(true);
+        signUpButton.setEnabled(true);
+    }
+
     private class LoginAction implements ActionListener {
 
         private User user;
@@ -99,7 +108,9 @@ public class SocialMediaGUI extends JFrame {
             String password = new String(passwordField.getPassword());
 
             try {
-                new User(username, password, true);
+                user = new User(username, password, true);
+                SocialMediaGUI.this.loggedInUsername = username;
+                SocialMediaGUI.this.loggedInPass = password;
                 showSuccessDialog("Account created successfully!");
                 openMainScreen(user, true);
             } catch (UserException ex) {
@@ -132,7 +143,7 @@ public class SocialMediaGUI extends JFrame {
     }
 }
 
-class MainScreen extends JFrame  {
+class MainScreen extends JFrame {
     private User user;
     private boolean isNewUser;
     private JTextArea messageArea;
@@ -156,119 +167,104 @@ class MainScreen extends JFrame  {
         setLocationRelativeTo(null); // Center the window
 
         initializeComponents(loginGUI);
-        
+        System.out.println(loginGUI.getName());
+        System.out.println("USERRR: " + loginGUI.getUsername());
+        client = new SocialMediaClient(loginGUI.getUsername(), loginGUI.getPassword());
     }
 
-    private void createTimer(String lastMessage, Message messager) {
-            System.out.println("Timer started");
-    
-            final String[] lastPrintedMessage = {lastMessage};
-        
+    public User getUser() {
+        return user;
+    }
+
+    /*private void createTimer(String lastMessage, Message messager) {
+            System.out.println("timer started"); 
+            
             int delay = 1000;
             timer = new Timer(delay, event -> {
-                try {
-                    if (currentFriend == null || currentFriend.isEmpty()) {
-                        return;
-                    }
-        
-                    String messages = messager.getMessages(currentFriend);
-                    String[] messagesArray = messages.split("\n");
-                    boolean startReading = false; 
-        
-                    for (String message : messagesArray) {
-                        // Print only if it's new
-                        if (startReading) {
-                            messageArea.append(message + "\n");
-                            lastPrintedMessage[0] = message; // Update the last printed message
+                
+                    try {
+                        if (currentFriend == null || currentFriend.isEmpty()) {
+                            return;
                         }
-                        if(message.equals(lastPrintedMessage[0])){
+    
+                        String messages = messager.getMessages(currentFriend);
+                        String[] messagesArray = messages.split("\n");
+                        boolean startReading = false; 
+                        for(String x : messagesArray) {
+                            String accLast; 
+                            if(startReading){
+                            accLast = x; 
+                            messageArea.append(x + "\n");
+                            System.out.println("printing last thing");
+                            
+                        }
+                        if(x.equals(lastMessage)){
                             startReading = true; 
                         }
                     }
+                    
+                    
+
+            
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-            });
             
-            timer.start(); 
-
-        
-        
-       
+        });
+        timer.start();
     }
     public void stopTimer() {
         if (timer != null && timer.isRunning()) {
             timer.stop();
             System.out.println("Timer stopped.");
         }
-    }
+    }*/
 
-    private void initializeComponents(SocialMediaGUI loginGUI) {
-        setLayout(new BorderLayout());
+   /*  private void createTimer(String lastMessage, Message messager) {
+        System.out.println("Timer started");
 
-        JButton logoutButton = new JButton("Logout");
-        logoutButton.addActionListener(e -> {
-            loginGUI.setVisible(true);
-            this.dispose();
-        });
-        JTextField searchBar = new JTextField(20);
-        JButton searchButton = new JButton("Search");
-        searchButton.addActionListener(e -> {
-            //System.out.println("Size");
-            search(searchBar.getText());
-        });
-        JPanel topPanel = new JPanel(new BorderLayout());
-        JPanel searchPanel = new JPanel(new BorderLayout());
-        searchPanel.add(searchBar, BorderLayout.WEST);
-        searchPanel.add(searchButton, BorderLayout.LINE_END);
-        topPanel.add(logoutButton, BorderLayout.EAST);
-        topPanel.add(searchPanel, BorderLayout.WEST);
-        add(topPanel, BorderLayout.NORTH);
-
-        //client = new SocialMediaClient();
-
-        // left sidebar
-        friendListModel = new DefaultListModel<>();
-        friendList = new JList<>(friendListModel);
-        friendList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        friendList.setFixedCellWidth(150);
-        friendList.addListSelectionListener(e -> selectFriend());
-
-        JScrollPane friendScrollPane = new JScrollPane(friendList);
-        friendScrollPane.setPreferredSize(new Dimension(150, 0));
-        add(friendScrollPane, BorderLayout.WEST);
-
-        // chat display
-        messageArea = new JTextArea();
-        messageArea.setEditable(false);
-        messageArea.setLineWrap(true);
-        messageArea.setWrapStyleWord(true);
-        JScrollPane messageScrollPane = new JScrollPane(messageArea);
-        add(messageScrollPane, BorderLayout.CENTER);
-
-        // message input
-        JPanel inputPanel = new JPanel(new BorderLayout());
-        inputField = new JTextField();
-        sendButton = new JButton("Send");
-        inputPanel.add(inputField, BorderLayout.CENTER);
-        inputPanel.add(sendButton, BorderLayout.EAST);
-        add(inputPanel, BorderLayout.SOUTH);
-
-        sendButton.addActionListener(e -> sendMessage());
-        inputField.addActionListener(e -> sendButton.doClick()); // Trigger send on Enter key
-
-        if (!isNewUser) {
-            String s = user.getUserFriends();
-            //System.out.println("Friend: " + s);
-            String[] userFriends = s.split(";");
-            for (int i = 0; i < userFriends.length; i++) {
-                friendListModel.addElement(userFriends[i]);
+        final String[] lastPrintedMessage = {lastMessage};
+    
+        int delay = 1000;
+        timer = new Timer(delay, event -> {
+            try {
+                if (currentFriend == null || currentFriend.isEmpty()) {
+                    return;
+                }
+    
+                String messages = messager.getMessages(currentFriend);
+                String[] messagesArray = messages.split("\n");
+                boolean startReading = false; 
+    
+                for (String message : messagesArray) {
+                    // Print only if it's new
+                    if (startReading) {
+                        messageArea.append(message + "\n");
+                        lastPrintedMessage[0] = message; // Update the last printed message
+                    }
+                    if(message.equals(lastPrintedMessage[0])){
+                        startReading = true; 
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }
 
+        });
+        
+        timer.start(); 
+
+    
+    
+   
     }
-
+    public void stopTimer() {
+        if (timer != null && timer.isRunning()) {
+            timer.stop();
+            System.out.println("Timer stopped.");
+        }
+    } 
     private void selectFriend() {
         try {
             String selectedValue = friendList.getSelectedValue(); // Get the current selection
@@ -303,15 +299,96 @@ class MainScreen extends JFrame  {
         } catch (UserException ex) {
             ex.printStackTrace();
         }
+    }*/
+
+
+    private void initializeComponents(SocialMediaGUI loginGUI) {
+        setLayout(new BorderLayout());
+
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.setBackground(Color.RED);
+        logoutButton.setOpaque(true);
+        logoutButton.setBorderPainted(false);
+        logoutButton.addActionListener(e -> {
+            loginGUI.resetLoginScreen();
+            loginGUI.setVisible(true);
+            this.dispose();
+        });
+        JTextField searchBar = new JTextField(20);
+        JButton searchButton = new JButton("Search");
+        searchButton.addActionListener(e -> {
+            //System.out.println("Size");
+            search(searchBar.getText());
+        });
+        JPanel topPanel = new JPanel(new BorderLayout());
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        searchPanel.add(searchBar, BorderLayout.WEST);
+        searchPanel.add(searchButton, BorderLayout.LINE_END);
+        topPanel.add(logoutButton, BorderLayout.EAST);
+        topPanel.add(searchPanel, BorderLayout.WEST);
+        add(topPanel, BorderLayout.NORTH);
+
+        //client = new SocialMediaClient();
+
+        //left sidebar
+        friendListModel = new DefaultListModel<>();
+        friendList = new JList<>(friendListModel);
+        friendList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        friendList.setFixedCellWidth(150);
+        friendList.addListSelectionListener(e -> selectFriend());
+
+        JScrollPane friendScrollPane = new JScrollPane(friendList);
+        friendScrollPane.setPreferredSize(new Dimension(150, 0));
+        add(friendScrollPane, BorderLayout.WEST);
+
+        //chat display
+        messageArea = new JTextArea();
+        messageArea.setEditable(false);
+        messageArea.setLineWrap(true);
+        messageArea.setWrapStyleWord(true);
+        JScrollPane messageScrollPane = new JScrollPane(messageArea);
+        add(messageScrollPane, BorderLayout.CENTER);
+
+        //message input
+        JPanel inputPanel = new JPanel(new BorderLayout());
+        inputField = new JTextField();
+        sendButton = new JButton("Send");
+        sendButton.setBackground(new Color(122, 184, 253));
+        sendButton.setOpaque(true);
+        sendButton.setBorderPainted(false);
+        inputPanel.add(inputField, BorderLayout.CENTER);
+        inputPanel.add(sendButton, BorderLayout.EAST);
+        add(inputPanel, BorderLayout.SOUTH);
+
+        sendButton.addActionListener(e -> {
+            try {
+                sendMessage();
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+        });
+        inputField.addActionListener(e -> sendButton.doClick()); // Trigger send on Enter key
+
+        if(!isNewUser) {
+            String s = user.getUserFriends();
+            //System.out.println("Friend: " + s);
+            String[] userFriends = s.split(";");
+            for(int i = 0; i < userFriends.length; i++) {
+                friendListModel.addElement(userFriends[i]);
+            }
+        }
+
     }
 
-    private void sendMessage() {
+    /*private void sendMessage() {
 
         try {
 
             String message = inputField.getText().trim();
             Message mes = new Message(user);
             if (!message.isEmpty()) {
+                messageArea.append("You: " + message + "\n");
                 inputField.setText("");
 
                 mes.messageUser(currentFriend, (user.getUsername() + ": " + message));
@@ -321,13 +398,119 @@ class MainScreen extends JFrame  {
         } catch (UserException e) {
         }
 
-    }
+    }*/
 
    /*  private void openSearchedScreen(User user, boolean isNewUser) {
         SearchedScreen searchedScreen = new SearchedScreen(loginGUI, this, getUser(), isNewUser);
         searchedScreen.setVisible(true);
         this.setVisible(false);
     }*/
+
+    private void selectFriend() {
+        try {
+            String selectedValue = friendList.getSelectedValue(); // Get the current selection
+            if (selectedValue == null || selectedValue.equals(currentFriend)) {
+                return;
+            }
+            stopTimer(); 
+
+            currentFriend = selectedValue; // Update the current friend
+
+            Message messager = new Message(user);
+            messageArea.setText("");
+            setTitle("Chat with " + currentFriend);
+            String messages = messager.getMessages(currentFriend);
+            String[] messagesArray = messages.split("\n");
+
+            for (String msg : messagesArray) {
+                messageArea.append(msg + "\n");
+            }
+
+            String messagesss;
+            try {
+                messager = new Message(user);
+            } catch (UserException e) {
+                e.printStackTrace();
+            }
+            messagesss = messager.getMessages(currentFriend);
+            String[] splitMessages = messagesss.split("\n");
+            String lastMessage = splitMessages[splitMessages.length - 1];
+        
+            createTimer(lastMessage, messager);
+            
+        } catch (UserException ex) {
+            ex.printStackTrace();
+        }
+    }
+    private void createTimer(String lastMessage, Message messager) {
+        System.out.println("Timer started");
+
+        final String[] lastPrintedMessage = {lastMessage};
+    
+        int delay = 1000;
+        timer = new Timer(delay, event -> {
+            try {
+                if (currentFriend == null || currentFriend.isEmpty()) {
+                    return;
+                }
+    
+                String messages = messager.getMessages(currentFriend);
+                String[] messagesArray = messages.split("\n");
+                boolean startReading = false; 
+    
+                for (String message : messagesArray) {
+                    // Print only if it's new
+                    if (startReading) {
+                        messageArea.append(message + "\n");
+                        lastPrintedMessage[0] = message; // Update the last printed message
+                    }
+                    if(message.equals(lastPrintedMessage[0])){
+                        startReading = true; 
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        });
+        
+        timer.start();
+    }
+    
+    public void stopTimer() {
+        if (timer != null && timer.isRunning()) {
+            timer.stop();
+            System.out.println("Timer stopped.");
+        }
+    }
+
+    private void sendMessage() throws IOException {
+
+        try {
+
+            String message = inputField.getText().trim();
+            Message mes = new Message(user);
+            if (!message.isEmpty()) {
+                inputField.setText("");
+                String name = mes.getFileName(currentFriend); 
+                int line = countLinesInFile(name); 
+                mes.messageUser(currentFriend, ((line+1) + ": " +user.getUsername() + ": " + message));
+
+            }
+
+        } catch (UserException e) {
+        }
+
+    }
+    public static int countLinesInFile(String name) throws IOException {
+        int lineCount = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(name))) {
+            while (reader.readLine() != null) {
+                lineCount++;
+            }
+        }
+        return lineCount;
+    }
 
     public void displayMessage(String sender, String message) {
         messageArea.append(sender + ": " + message + "\n");
@@ -353,8 +536,6 @@ class MainScreen extends JFrame  {
             JOptionPane.showMessageDialog(null, "User does not exist!", "Error", JOptionPane.ERROR_MESSAGE);
         //this.setVisible(false);
     }
-
-   
 }
 
 class SearchedScreen extends JFrame {
@@ -376,7 +557,7 @@ class SearchedScreen extends JFrame {
         //this.isNewUser = isNewUser;
         this.searched = searched;
         this.loginGUI = loginGUI;
-        setTitle(searched);
+        setTitle("User: " + searched);
         setSize(250, 150);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // Center the window
@@ -388,13 +569,16 @@ class SearchedScreen extends JFrame {
     private void initializeComponents(MainScreen mainGui) {
         setLayout(new BorderLayout());
 
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(e -> {
+        JButton backButton = new JButton("Back");
+        backButton.setBackground(Color.GRAY);
+        backButton.setOpaque(true);
+        backButton.setBorderPainted(false);
+        backButton.addActionListener(e -> {
             mainGui.setVisible(true);
             this.dispose();
         });
         JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(cancelButton, BorderLayout.EAST);
+        topPanel.add(backButton, BorderLayout.EAST);
         add(topPanel, BorderLayout.NORTH);
 
         //client = new SocialMediaClient();
@@ -427,10 +611,16 @@ class SearchedScreen extends JFrame {
         }
         if (isFriend) {
             JButton removeButton = new JButton("Remove");
+            removeButton.setBackground(Color.YELLOW);
+            removeButton.setOpaque(true);
+            removeButton.setBorderPainted(false);
             removeButton.addActionListener(e -> {
                 remove(searched);
             });
             JButton blockButton = new JButton("Block");
+            blockButton.setBackground(Color.RED);
+            blockButton.setOpaque(true);
+            blockButton.setBorderPainted(false);
             blockButton.addActionListener(e -> {
                 block(searched);
             });
@@ -438,12 +628,18 @@ class SearchedScreen extends JFrame {
             interactionPanel.add(removeButton, BorderLayout.LINE_START);
         } else if (isBlocked) {
             JButton unblockButton = new JButton("Unblock");
+            unblockButton.setBackground(Color.GRAY);
+            unblockButton.setOpaque(true);
+            unblockButton.setBorderPainted(false);
             unblockButton.addActionListener(e -> {
                 unblock(searched);
             });
             interactionPanel.add(unblockButton, BorderLayout.EAST);
         } else {
             JButton addButton = new JButton("Add");
+            addButton.setBackground(Color.GREEN);
+            addButton.setOpaque(true);
+            addButton.setBorderPainted(false);
             addButton.addActionListener(e -> {
                 add(searched);
             });
