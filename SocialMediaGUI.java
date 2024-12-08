@@ -375,18 +375,19 @@ class MainScreen extends JFrame {
         if (!searched.isEmpty()) {
             result = client.client("6", searched);
             //System.out.println("After: " + result);
+        
+            //System.out.println("After: " + result);
+            //return result;
+            //if (result.equals(result))
+            SearchedScreen searchedScreen = new SearchedScreen(loginGUI, this, getUser(), searched, isNewUser);
+            //System.out.println("RESULT: " + result);
+            if (result.equals(searched) || result.equals("Blocked"))
+                searchedScreen.setVisible(true);
+            //else if (result.equals("Blocked"))
+            //    JOptionPane.showMessageDialog(null, searched + " is blocked", "Blocked", JOptionPane.ERROR_MESSAGE);
+            else
+                JOptionPane.showMessageDialog(null, "User does not exist!", "Error", JOptionPane.ERROR_MESSAGE);
         }
-        //System.out.println("After: " + result);
-        //return result;
-        //if (result.equals(result))
-        SearchedScreen searchedScreen = new SearchedScreen(loginGUI, this, getUser(), searched, isNewUser);
-        //System.out.println("RESULT: " + result);
-        if (result.equals(searched) || result.equals("Blocked"))
-            searchedScreen.setVisible(true);
-        //else if (result.equals("Blocked"))
-        //    JOptionPane.showMessageDialog(null, searched + " is blocked", "Blocked", JOptionPane.ERROR_MESSAGE);
-        else
-            JOptionPane.showMessageDialog(null, "User does not exist!", "Error", JOptionPane.ERROR_MESSAGE);
         //this.setVisible(false);
     }
 }
