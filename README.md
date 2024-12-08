@@ -10,9 +10,13 @@
    - This command will compile all `.java` files in the directory.
 
 2. **Execution**:
-   - Run the main program using the following command:
+   - Run the server using the following command in one terminal:
      ```bash
-     java FoundationDataBase
+     java SocialMediaServer.java
+     ```
+   - Run the GUI client portion using the following command in another terminal:
+     ```bash
+     java SocialMediaGUI.java
      ```
      
 ## Submission Summary
