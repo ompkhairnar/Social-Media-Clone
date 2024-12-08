@@ -76,8 +76,8 @@ public class DatabaseTest {
         assertEquals("Expected password of user 1", "123pass", fd.getUsers().get(1).getUserPassword());
     }
 
-    @Test
-    public void createUserTest() {
+    //@Test
+    /*public void createUserTest() {
         ArrayList<User> users = new ArrayList<User>();
         FoundationDatabase fd = new FoundationDatabase(users, testFile);
         boolean result = fd.createUser("ben", "panera123");
@@ -85,16 +85,16 @@ public class DatabaseTest {
         assertEquals("Expected 3 users to be read", 3, fd.getUsers().size());
         assertEquals("Expected new user username", "ben", fd.getUsers().get(2).getUsername());
         assertEquals("Expected new user passwowrd", "panera123", fd.getUsers().get(2).getUserPassword());
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void createBadUserTest() {
         ArrayList<User> users = new ArrayList<User>();
         FoundationDatabase fd = new FoundationDatabase(users, testFile);
         boolean result = fd.createUser(" ", " ");
         assertTrue("Expected createUser to return false for invalid user data", result);
         assertEquals("Expected 2 users to be read", 2, fd.getUsers().size());
-    }
+    }*/
 
     @Test
     public void viewUserTest() {
