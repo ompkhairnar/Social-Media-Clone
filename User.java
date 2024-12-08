@@ -244,19 +244,8 @@ public class User implements UserInterface {
         synchronized (friendList) {
             friendList.add(username);
             updateCSV();
-            /*String addedFriends = added.getUserFriends();
-            System.out.println("ADDEDFRIEND:->" + addedFriends + "<-");
-            ArrayList<String> addedFriendsList;
-            if (!addedFriends.equals("")) {
-                addedFriendsList = new ArrayList<>(Arrays.asList(addedFriends.split(";")));
-            } else {
-                System.out.println("hello");
-                addedFriendsList = new ArrayList<String>();
-            }
-            System.out.println("s" + addedFriendsList.size());
-            addedFriendsList.add(getUsername());
-            added.setUserFriends(addedFriendsList);*/
             String addedFriends = added.getUserFriends();
+            //System.out.println("BIDIT ")
             System.out.println("ADDEDFRIEND:->" + addedFriends + "<-");
             ArrayList<String> addedFriendsList;
             if (!addedFriends.equals(" ")) {
