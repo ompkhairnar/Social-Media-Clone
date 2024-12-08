@@ -347,7 +347,7 @@ class MainScreen extends JFrame {
                 inputField.setText("");
                 String name = mes.getFileName(currentFriend); 
                 int line = countLinesInFile(name); 
-                mes.messageUser(currentFriend, ((line+1) + ": " +user.getUsername() + ": " + message));
+                mes.messageUser(currentFriend, ((line) + ": " +user.getUsername() + ": " + message));
 
             }
 
